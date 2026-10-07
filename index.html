@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des étudiants</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <p class="le">ESPACE ADMINISTRATION</p>
+            <h1>Gestion des étudiants UNCHK<i class="fa-solid fa-graduation-cap"></i></h1>
+            <p>Gérez les inscriptions et suivez les résultats.</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="statistiques">
+
+            <div class="carte-statistique">
+                <h3>Total étudiants</h3>
+                <p id="totalEtudiants">0</p>
+            </div>
+
+            <div class="carte-statistique">
+                <h3>Moyenne générale</h3>
+                <p id="moyenneGenerale">0</p>
+            </div>
+
+            <div class="carte-statistique">
+                <h3>Etudiants admis</h3>
+                <p id="totalAdmis">0</p>
+            </div>
+
+        </section>
+
+
+        <section class="formulaire">
+
+            <h2 id="titreFormulaire">Ajouter un étudiant</h2>
+
+            <form id="formulaireEtudiant">
+
+                <div class="champ">
+                    <label for="nom">Nom</label>
+                    <input type="text"id="nom"placeholder="Ex : Ndiaye"required>
+                </div>
+
+                <div class="champ">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" placeholder="Ex : Khady"required>
+                </div>
+
+                <div class="champ">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Ex : khady@gmail.com" required>
+                </div>
+
+                <div class="champ">
+                    <label for="classe">Classe</label>
+                    <input type="text"id="classe"placeholder="Ex : L3 Informatique" required>
+                </div>
+
+                <div class="champ">
+                    <label for="note">Note sur 20</label>
+                    <input type="number"id="note" placeholder="Ex : 15" min="0" max="20" step="0.01" required>
+                </div>
+
+                <div class="actions-formulaire">
+                    <button type="submit" id="btnEnregistrer">
+                        Ajouter l'étudiant
+                    </button>
+
+                    <button type="button" id="btnAnnuler" class="btn-annuler"hidden >
+                        Annuler
+                    </button>
+                </div>
+
+            </form>
+
+            <p id="messageErreur" class="erreur"></p>
+            <p id="messageSucces" class="succes"></p>
+        </section>
+
+
+        <section class="recherche">
+
+            <h2>Rechercher un étudiant</h2>
+
+            <input type="search" id="recherche"placeholder="🔎 Rechercher par nom, prénom, email ou classe...">
+
+        </section>
+
+        <section class="tableau">
+
+            <h2>Liste des étudiants</h2>
+            <p>Consultez et gérez les inscriptions.</p>
+
+            <div class="tableau2">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                            <th>Classe</th>
+                            <th>Note</th>
+                            <th>Résultat</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listeEtudiants">
+                        
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <p id="aucunEtudiant" class="aucun-etudiant">
+                Aucun étudiant enregistré.
+            </p>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p><i class="fa-regular fa-copyright"></i> 2026 - Application de gestion des étudiants</p>
+    </footer>
+
+   
+    <script src="script.js"></script>
+</body>
+</html>
