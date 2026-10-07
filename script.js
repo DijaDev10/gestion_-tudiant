@@ -1,409 +1,442 @@
-const formulaire = document.getElementById("formulaireEtudiant");
+const CLE_STOCKAGE = "etudiantsUNCHK";
+const NOTE_ADMISSION = 10;
 
-const nom = document.getElementById("nom");
-const prenom = document.getElementById("prenom");
-const email = document.getElementById("email");
-const classe = document.getElementById("classe");
-const note = document.getElementById("note");
+let etudiants = chargerEtudiants();
+let idEnModification = null;
+
+const elTotal = document.getElementById("totalEtudiants");
+const elMoyenne = document.getElementById("moyenneGenerale");
+const elAdmis = document.getElementById("totalAdmis");
+const elTaux = document.getElementById("tauxReussite");
+const elMeilleurNom = document.getElementById("meilleurEtudiant");
+const elMeilleurNote = document.getElementById("meilleureNote");
+
+const formulaire = document.getElementById("formulaireEtudiant");
+const titreFormulaire = document.getElementById("titreFormulaire");
+const champNom = document.getElementById("nom");
+const champPrenom = document.getElementById("prenom");
+const champEmail = document.getElementById("email");
+const champClasse = document.getElementById("classe");
+const champNote = document.getElementById("note");
+const btnEnregistrer = document.getElementById("btnEnregistrer");
+const btnAnnuler = document.getElementById("btnAnnuler");
+const messageErreur = document.getElementById("messageErreur");
+const messageSucces = document.getElementById("messageSucces");
+
+const champRecherche = document.getElementById("recherche");
+const filtreClasse = document.getElementById("filtreClasse");
+const choixTri = document.getElementById("triEtudiants");
+const btnExportCSV = document.getElementById("btnExportCSV");
+const btnExportExcel = document.getElementById("btnExportExcel");
 
 const listeEtudiants = document.getElementById("listeEtudiants");
 const aucunEtudiant = document.getElementById("aucunEtudiant");
 
-const recherche = document.getElementById("recherche");
-
-const totalEtudiants = document.getElementById("totalEtudiants");
-const moyenneGenerale = document.getElementById("moyenneGenerale");
-const totalAdmis = document.getElementById("totalAdmis");
-
-const messageErreur = document.getElementById("messageErreur");
-const messageSucces = document.getElementById("messageSucces");
-
-const btnEnregistrer = document.getElementById("btnEnregistrer");
-const btnAnnuler = document.getElementById("btnAnnuler");
-const titreFormulaire = document.getElementById("titreFormulaire");
-
-
-let etudiants = JSON.parse(localStorage.getItem("etudiants")) || [];
-
-let idEtudiantModifie = null;
-
-
-function sauvegarderEtudiants() {
-
-    localStorage.setItem("etudiants", JSON.stringify(etudiants));
-
+function chargerEtudiants() {
+    try {
+        return JSON.parse(localStorage.getItem(CLE_STOCKAGE)) || [];
+    } catch (erreur) {
+       
+        return [];
+    }
 }
 
-function afficherEtudiants(liste = etudiants) {
+function sauvegarderEtudiants() {
+     localStorage.setItem(CLE_STOCKAGE, JSON.stringify(etudiants));
+}
+
+function estAdmis(note) {
+    return note >= NOTE_ADMISSION;
+}
+
+function echapperHTML(texte) {
+    const div = document.createElement("div");
+    div.textContent = texte;
+    return div.innerHTML;
+}
+
+function afficherMessage(element, texte) {
+    messageErreur.textContent = "";
+    messageSucces.textContent = "";
+    element.textContent = texte;
+
+    setTimeout(function () {
+        element.textContent = "";
+    }, 3000);
+}
+
+function remplirFiltreClasse() {
+    const choixActuel = filtreClasse.value;
+
+    const classes = [...new Set(etudiants.map(function (e) {
+        return e.classe;
+    }))].sort(function (a, b) {
+        return a.localeCompare(b, "fr");
+    });
+
+    filtreClasse.innerHTML = '<option value="">Toutes les classes</option>';
+
+    classes.forEach(function (classe) {
+        const option = document.createElement("option");
+        option.value = classe;
+        option.textContent = classe;
+        filtreClasse.appendChild(option);
+    });
+
+   
+    if (classes.includes(choixActuel)) {
+        filtreClasse.value = choixActuel;
+    }
+}
+
+function etudiantsDeLaClasse() {
+    const classeChoisie = filtreClasse.value;
+
+    if (classeChoisie === "") {
+        return etudiants;
+    }
+    return etudiants.filter(function (e) {
+        return e.classe === classeChoisie;
+    });
+}
+
+
+
+function trierEtudiants(liste) {
+
+    const copie = [...liste];
+
+    switch (choixTri.value) {
+        case "nom-az":
+            copie.sort(function (a, b) {
+                return a.nom.localeCompare(b.nom, "fr");
+            });
+            break;
+        case "nom-za":
+            copie.sort(function (a, b) {
+                return b.nom.localeCompare(a.nom, "fr");
+            });
+            break;
+        case "note-desc":
+            copie.sort(function (a, b) {
+                return b.note - a.note;
+            });
+            break;
+        case "note-asc":
+            copie.sort(function (a, b) {
+                return a.note - b.note;
+            });
+            break;
+        case "classe":
+            copie.sort(function (a, b) {
+                return a.classe.localeCompare(b.classe, "fr");
+            });
+            break;
+        default:
+
+            copie.sort(function (a, b) {
+                return b.id - a.id;
+            });
+    }
+
+    return copie;
+}
+
+
+function obtenirEtudiantsAffiches() {
+
+    let resultat = etudiantsDeLaClasse();
+
+    const mot = champRecherche.value.trim().toLowerCase();
+
+    if (mot !== "") {
+        resultat = resultat.filter(function (e) {
+            return (
+                e.nom.toLowerCase().includes(mot) ||
+                e.prenom.toLowerCase().includes(mot) ||
+                e.email.toLowerCase().includes(mot) ||
+                e.classe.toLowerCase().includes(mot)
+            );
+        });
+    }
+
+    return trierEtudiants(resultat);
+}
+
+function afficherTableau() {
+    const liste = obtenirEtudiantsAffiches();
 
     listeEtudiants.innerHTML = "";
 
+    aucunEtudiant.hidden = liste.length > 0;
     if (liste.length === 0) {
-
-        aucunEtudiant.style.display = "block";
-
-        return;
-
+        aucunEtudiant.textContent = etudiants.length === 0
+            ? "Aucun étudiant enregistré."
+            : "Aucun étudiant ne correspond à votre recherche.";
     }
 
-    aucunEtudiant.style.display = "none";
-
-
-    liste.forEach((etudiant, index) => {
-
-        const resultat = Number(etudiant.note) >= 10
-            ? "Admis"
-            : "Échec";
-
-        const classeResultat = Number(etudiant.note) >= 10
-            ? "admis"
-            : "echec";
-
-
+    liste.forEach(function (e, index) {
+        const admis = estAdmis(e.note);
         const ligne = document.createElement("tr");
 
         ligne.innerHTML = `
             <td>${index + 1}</td>
-
-            <td>${etudiant.nom}</td>
-
-            <td>${etudiant.prenom}</td>
-
-            <td>${etudiant.email}</td>
-
-            <td>${etudiant.classe}</td>
-
-            <td>${etudiant.note}/20</td>
-
+            <td>${echapperHTML(e.nom)}</td>
+            <td>${echapperHTML(e.prenom)}</td>
+            <td>${echapperHTML(e.email)}</td>
+            <td>${echapperHTML(e.classe)}</td>
+            <td>${e.note.toFixed(2)}</td>
+            <td><span class="${admis ? "admis" : "echec"}">${admis ? "Admis" : "Échec"}</span></td>
             <td>
-                <span class="${classeResultat}">
-                    ${resultat}
-                </span>
-            </td>
-
-            <td>
-
-                <button 
-                    class="btn-modifier"
-                    onclick="modifierEtudiant(${etudiant.id})">
-                    <i class="fa-solid fa-pen-to-square"></i>
+                <button class="btn-modifier" data-action="modifier" data-id="${e.id}">
+                    <i class="fa-solid fa-pen"></i>
                 </button>
-
-                <button 
-                    class="btn-supprimer"
-                    onclick="supprimerEtudiant(${etudiant.id})">
+                <button class="btn-supprimer" data-action="supprimer" data-id="${e.id}">
                     <i class="fa-solid fa-trash"></i>
                 </button>
-
             </td>
         `;
 
         listeEtudiants.appendChild(ligne);
-
     });
-
 }
 
 
-function calculerStatistiques() {
+function mettreAJourStatistiques() {
+    const liste = etudiantsDeLaClasse();
+    const total = liste.length;
 
-    // map() récupère toutes les notes
+    
+    elTotal.textContent = total;
 
-    const notes = etudiants.map(etudiant => Number(etudiant.note));
 
+    if (total === 0) {
+        elMoyenne.textContent = "0";
+        elAdmis.textContent = "0";
+        elTaux.textContent = "0 %";
+        elMeilleurNom.textContent = "-";
+        elMeilleurNote.textContent = "";
+        return;
+    }
 
-    // reduce() calcule la somme des notes
-
-    const somme = notes.reduce((total, note) => {
-        return total + note;
+    const somme = liste.reduce(function (cumul, e) {
+        return cumul + e.note;
     }, 0);
+    elMoyenne.textContent = (somme / total).toFixed(2);
 
+   
+    const nbAdmis = liste.filter(function (e) {
+        return estAdmis(e.note);
+    }).length;
+    elAdmis.textContent = nbAdmis;
 
-    // Calcul de la moyenne
+    
+    elTaux.textContent = Math.round((nbAdmis / total) * 100) + " %";
 
-    const moyenne = etudiants.length > 0
-        ? somme / etudiants.length
-        : 0;
-
-
-    // filter() récupère uniquement les étudiants admis
-
-    const admis = etudiants.filter(etudiant => {
-        return Number(etudiant.note) >= 10;
+    
+    const meilleureNote = Math.max(...liste.map(function (e) {
+        return e.note;
+    }));
+    const meilleurs = liste.filter(function (e) {
+        return e.note === meilleureNote;
     });
 
+    let texte = meilleurs[0].prenom + " " + meilleurs[0].nom;
+    if (meilleurs.length > 1) {
+        texte += " (+" + (meilleurs.length - 1) + " ex æquo)";
+    }
+    elMeilleurNom.textContent = texte;
+    elMeilleurNote.textContent = meilleureNote.toFixed(2) + " / 20";
+}
 
-    // Affichage des statistiques
-
-    totalEtudiants.textContent = etudiants.length;
-
-    moyenneGenerale.textContent = moyenne.toFixed(2);
-
-    totalAdmis.textContent = admis.length;
-
+function actualiser() {
+    remplirFiltreClasse();
+    mettreAJourStatistiques();
+    afficherTableau();
 }
 
 
-formulaire.addEventListener("submit", function(event) {
-
-    event.preventDefault();
-
-    const nomValue = nom.value.trim();
-    const prenomValue = prenom.value.trim();
-    const emailValue = email.value.trim();
-    const classeValue = classe.value.trim();
-    const noteValue = Number(note.value);
 
 
-    messageErreur.textContent = "";
-    messageSucces.textContent = "";
+formulaire.addEventListener("submit", function (evenement) {
+    evenement.preventDefault();
 
+    const nom = champNom.value.trim();
+    const prenom = champPrenom.value.trim();
+    const email = champEmail.value.trim().toLowerCase();
+    const classe = champClasse.value.trim();
+    const note = parseFloat(champNote.value);
 
-    if (
-        nomValue === "" ||
-        prenomValue === "" ||
-        emailValue === "" ||
-        classeValue === "" ||
-        note.value === ""
-    ) {
-
-        messageErreur.textContent = "Veuillez remplir tous les champs.";
-
+    if (nom === "" || prenom === "" || classe === "") {
+        afficherMessage(messageErreur, "Veuillez remplir tous les champs.");
         return;
-
     }
-
-
-    const emailValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailValide.test(emailValue)) {
-
-        messageErreur.textContent = "Veuillez entrer une adresse email valide.";
-
+    if (isNaN(note) || note < 0 || note > 20) {
+        afficherMessage(messageErreur, "La note doit être comprise entre 0 et 20.");
         return;
-
     }
 
-
-    if (noteValue < 0 || noteValue > 20) {
-
-        messageErreur.textContent = "La note doit être comprise entre 0 et 20.";
-
+    const emailDejaUtilise = etudiants.some(function (e) {
+        return e.email === email && e.id !== idEnModification;
+    });
+    if (emailDejaUtilise) {
+        afficherMessage(messageErreur, "Cet email existe déjà.");
         return;
-
     }
 
-    if (idEtudiantModifie !== null) {
+    if (idEnModification === null) {
 
-        const etudiant = etudiants.find(
-            etudiant => etudiant.id === idEtudiantModifie
-        );
+        etudiants.push({ id: Date.now(), nom, prenom, email, classe, note });
+        afficherMessage(messageSucces, "Étudiant ajouté avec succès.");
+    } else {
 
-
-        if (etudiant) {
-
-            etudiant.nom = nomValue;
-            etudiant.prenom = prenomValue;
-            etudiant.email = emailValue;
-            etudiant.classe = classeValue;
-            etudiant.note = noteValue;
-
-        }
-
-
-        messageSucces.textContent = "Étudiant modifié avec succès.";
-
+        const etudiant = etudiants.find(function (e) {
+            return e.id === idEnModification;
+        });
+        Object.assign(etudiant, { nom, prenom, email, classe, note });
+        afficherMessage(messageSucces, "Étudiant modifié avec succès.");
     }
-
-    else {
-
-        const nouvelEtudiant = {
-
-            id: Date.now(),
-
-            nom: nomValue,
-
-            prenom: prenomValue,
-
-            email: emailValue,
-
-            classe: classeValue,
-
-            note: noteValue
-
-        };
-
-
-        etudiants.push(nouvelEtudiant);
-
-
-        messageSucces.textContent = "Étudiant ajouté avec succès.";
-
-    }
-
 
     sauvegarderEtudiants();
-
-
-    afficherEtudiants();
-
-    calculerStatistiques();
-
-
-    // Réinitialiser le formulaire
-
-    formulaire.reset();
-
-
-    // Quitter le mode modification
-
-    idEtudiantModifie = null;
-
-    titreFormulaire.textContent = "Ajouter un étudiant";
-
-    btnEnregistrer.textContent = "Ajouter l'étudiant";
-
-    btnAnnuler.hidden = true;
-
-
-    // Effacer le message après quelques secondes
-
-    setTimeout(function() {
-
-        messageSucces.textContent = "";
-
-    }, 3000);
-
+    quitterModeModification();
+    actualiser();
 });
 
-function modifierEtudiant(id) {
+listeEtudiants.addEventListener("click", function (evenement) {
+    const bouton = evenement.target.closest("button");
+    if (!bouton) return;
 
-    const etudiant = etudiants.find(
-        etudiant => etudiant.id === id
-    );
+    const id = Number(bouton.dataset.id);
 
-
-    if (!etudiant) {
-        return;
+    if (bouton.dataset.action === "modifier") {
+        passerEnModeModification(id);
     }
 
+    if (bouton.dataset.action === "supprimer") {
+        const etudiant = etudiants.find(function (e) {
+            return e.id === id;
+        });
+        if (confirm("Supprimer " + etudiant.prenom + " " + etudiant.nom + " ?")) {
+            etudiants = etudiants.filter(function (e) {
+                return e.id !== id;
+            });
+            sauvegarderEtudiants();
+            actualiser();
+            afficherMessage(messageSucces, "Étudiant supprimé.");
+        }
+    }
+});
 
+function passerEnModeModification(id) {
+    const etudiant = etudiants.find(function (e) {
+        return e.id === id;
+    });
 
-    nom.value = etudiant.nom;
+    champNom.value = etudiant.nom;
+    champPrenom.value = etudiant.prenom;
+    champEmail.value = etudiant.email;
+    champClasse.value = etudiant.classe;
+    champNote.value = etudiant.note;
 
-    prenom.value = etudiant.prenom;
-
-    email.value = etudiant.email;
-
-    classe.value = etudiant.classe;
-
-    note.value = etudiant.note;
-
-
-    idEtudiantModifie = id;
-
+    idEnModification = id;
     titreFormulaire.textContent = "Modifier un étudiant";
-
-
     btnEnregistrer.textContent = "Enregistrer les modifications";
-
-
     btnAnnuler.hidden = false;
 
-
-    formulaire.scrollIntoView({
-        behavior: "smooth"
-    });
-
+    formulaire.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-
-btnAnnuler.addEventListener("click", function() {
-
+function quitterModeModification() {
+    idEnModification = null;
     formulaire.reset();
-
-    idEtudiantModifie = null;
-
     titreFormulaire.textContent = "Ajouter un étudiant";
-
     btnEnregistrer.textContent = "Ajouter l'étudiant";
-
     btnAnnuler.hidden = true;
-
-    messageErreur.textContent = "";
-    messageSucces.textContent = "";
-
-});
-
-
-function supprimerEtudiant(id) {
-
-    const etudiant = etudiants.find(
-        etudiant => etudiant.id === id
-    );
-
-
-    if (!etudiant) {
-        return;
-    }
-
-
-    const confirmation = confirm(
-        `Voulez-vous supprimer ${etudiant.prenom} ${etudiant.nom} ?`
-    );
-
-
-    if (!confirmation) {
-        return;
-    }
-
-
-    etudiants = etudiants.filter(
-        etudiant => etudiant.id !== id
-    );
-
-
-    sauvegarderEtudiants();
-
-    afficherEtudiants();
-
-    calculerStatistiques();
-
-
-    messageSucces.textContent = "Étudiant supprimé avec succès.";
-
-
-    setTimeout(function() {
-
-        messageSucces.textContent = "";
-
-    }, 3000);
-
 }
 
-
-recherche.addEventListener("input", function() {
-
-    const texteRecherche = recherche.value.toLowerCase().trim();
+btnAnnuler.addEventListener("click", quitterModeModification);
 
 
-    const resultats = etudiants.filter(etudiant => {
+champRecherche.addEventListener("input", afficherTableau);
+choixTri.addEventListener("change", afficherTableau);
 
-        return (
-            etudiant.nom.toLowerCase().includes(texteRecherche) ||
-            etudiant.prenom.toLowerCase().includes(texteRecherche) ||
-            etudiant.email.toLowerCase().includes(texteRecherche) ||
-            etudiant.classe.toLowerCase().includes(texteRecherche)
-        );
+filtreClasse.addEventListener("change", function () {
+    mettreAJourStatistiques();
+    afficherTableau();
+});
 
+function telechargerFichier(contenu, nomFichier, typeMime) {
+    const blob = new Blob([contenu], { type: typeMime });
+    const lien = document.createElement("a");
+    lien.href = URL.createObjectURL(blob);
+    lien.download = nomFichier;
+    lien.click();
+    URL.revokeObjectURL(lien.href);
+}
+
+function preparerDonneesExport() {
+    return obtenirEtudiantsAffiches().map(function (e) {
+        return {
+            "Nom": e.nom,
+            "Prénom": e.prenom,
+            "Email": e.email,
+            "Classe": e.classe,
+            "Note": e.note,
+            "Résultat": estAdmis(e.note) ? "Admis" : "Échec"
+        };
+    });
+}
+
+btnExportCSV.addEventListener("click", function () {
+    const donnees = preparerDonneesExport();
+
+    if (donnees.length === 0) {
+        afficherMessage(messageErreur, "Aucune donnée à exporter.");
+        return;
+    }
+
+    const colonnes = Object.keys(donnees[0]);
+    const lignes = donnees.map(function (ligne) {
+        return colonnes.map(function (col) {
+    
+            return '"' + String(ligne[col]).replace(/"/g, '""') + '"';
+        }).join(";");
     });
 
+    const csv = [colonnes.join(";"), ...lignes].join("\n");
 
-    afficherEtudiants(resultats);
+    telechargerFichier("\uFEFF" + csv, "etudiants_unchk.csv", "text/csv;charset=utf-8;");
+    afficherMessage(messageSucces, "Export CSV terminé.");
+});
 
+btnExportExcel.addEventListener("click", function () {
+    
+    if (typeof XLSX === "undefined") {
+        afficherMessage(messageErreur, "Bibliothèque Excel indisponible. Vérifiez votre connexion internet.");
+        return;
+    }
+
+    const donnees = preparerDonneesExport();
+
+    if (donnees.length === 0) {
+        afficherMessage(messageErreur, "Aucune donnée à exporter.");
+        return;
+    }
+
+    const feuille = XLSX.utils.json_to_sheet(donnees);
+
+    feuille["!cols"] = [
+        { wch: 16 }, { wch: 16 }, { wch: 28 },
+        { wch: 20 }, { wch: 8 }, { wch: 10 }
+    ];
+
+    const classeur = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(classeur, feuille, "Étudiants");
+    XLSX.writeFile(classeur, "etudiants_unchk.xlsx");
+
+    afficherMessage(messageSucces, "Export Excel terminé.");
 });
 
 
-afficherEtudiants();
 
-calculerStatistiques();
+actualiser();

@@ -36,6 +36,16 @@
                 <h3>Etudiants admis</h3>
                 <p id="totalAdmis">0</p>
             </div>
+            <div class="carte-statistique">
+    <h3>Taux de réussite</h3>
+    <p id="tauxReussite">0 %</p>
+</div>
+
+<div class="carte-statistique">
+    <h3>Meilleur étudiant</h3>
+    <p id="meilleurEtudiant" class="texte-meilleur">-</p>
+    <small id="meilleureNote"></small>
+</div>
 
         </section>
 
@@ -93,6 +103,35 @@
             <h2>Rechercher un étudiant</h2>
 
             <input type="search" id="recherche"placeholder="🔎 Rechercher par nom, prénom, email ou classe...">
+            <div class="outils">
+    <div class="champ">
+        <label for="filtreClasse">Filtrer par classe</label>
+        <select id="filtreClasse">
+            <option value="">Toutes les classes</option>
+        </select>
+    </div>
+
+    <div class="champ">
+        <label for="triEtudiants">Trier par</label>
+        <select id="triEtudiants">
+            <option value="recent">Ajoutés récemment</option>
+            <option value="nom-az">Nom (A → Z)</option>
+            <option value="nom-za">Nom (Z → A)</option>
+            <option value="note-desc">Note (meilleure d'abord)</option>
+            <option value="note-asc">Note (plus faible d'abord)</option>
+            <option value="classe">Classe</option>
+        </select>
+    </div>
+
+    <div class="boutons-export">
+        <button type="button" id="btnExportCSV">
+            <i class="fa-solid fa-file-csv"></i> Exporter CSV
+        </button>
+        <button type="button" id="btnExportExcel">
+            <i class="fa-solid fa-file-excel"></i> Exporter Excel
+        </button>
+    </div>
+</div>
 
         </section>
 
@@ -138,7 +177,7 @@
         <p><i class="fa-regular fa-copyright"></i> 2026 - Application de gestion des étudiants</p>
     </footer>
 
-   
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

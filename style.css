@@ -335,9 +335,6 @@ footer i{
 footer p{
     opacity: 0.9;
 }
-/* ================================
-   RESPONSIVE
-================================ */
 
 @media (max-width: 768px) {
 
@@ -375,8 +372,6 @@ footer p{
         right: -40px;
     }
 
-    /* Cartes statistiques */
-
     .statistiques {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -386,7 +381,7 @@ footer p{
         height: 140px;
     }
 
-    /* Formulaire */
+
 
     .formulaire {
         padding: 25px;
@@ -406,14 +401,13 @@ footer p{
         width: 100%;
     }
 
-    /* Recherche */
 
     .recherche {
         padding: 25px;
         border-radius: 20px;
     }
 
-    /* Tableau */
+
 
     .tableau {
         padding: 20px;
@@ -490,6 +484,67 @@ footer p{
         font-size: 12px;
     }
 
+}
+
+.statistiques{
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.carte-statistique{
+    height: auto;
+    min-height: 150px;
+}
+
+.carte-statistique .texte-meilleur{
+    font-size: 18px;
+    line-height: 1.3;
+    margin-top: 8px;
+}
+
+.carte-statistique small{
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.outils{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.outils .champ{
+    flex: 1;
+    min-width: 200px;
+}
+
+.outils select{
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    font-family: inherit;
+    background: white;
+    transition: 0.3s;
+}
+
+.outils select:focus{
+    box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.12);
+    border-color: #8e44ad;
+}
+
+.boutons-export{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px){
+    .boutons-export,
+    .boutons-export button{
+        width: 100%;
+    }
 }
 
 
