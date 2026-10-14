@@ -1,183 +1,272 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestion des étudiants</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"/>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+<input type="checkbox" id="modeSombre" class="interrupteur-sombre">
+<label for="modeSombre" class="bouton-sombre">
+  <i class="fa-solid fa-moon"></i>
+  Mode sombre
+</label>
 
     <header>
-        <div class="container">
-            <p class="le">ESPACE ADMINISTRATION</p>
-            <h1>Gestion des étudiants UNCHK<i class="fa-solid fa-graduation-cap"></i></h1>
-            <p>Gérez les inscriptions et suivez les résultats.</p>
-        </div>
+      <div class="container">
+        <p class="le">ESPACE ADMINISTRATION</p>
+        <h1>
+          Gestion des étudiants UNCHK<i class="fa-solid fa-graduation-cap"></i>
+        </h1>
+        <p>Gérez les inscriptions et suivez les résultats.</p>
+      </div>
     </header>
+    
 
     <main class="container">
+      <section class="statistiques">
+        <div class="carte-statistique">
+          <h3>Total étudiants</h3>
+          <p id="totalEtudiants">0</p>
+        </div>
 
-        <section class="statistiques">
+        <div class="carte-statistique">
+          <h3>Moyenne générale</h3>
+          <p id="moyenneGenerale">0</p>
+        </div>
 
-            <div class="carte-statistique">
-                <h3>Total étudiants</h3>
-                <p id="totalEtudiants">0</p>
-            </div>
+        <div class="carte-statistique">
+          <h3>Etudiants admis</h3>
+          <p id="totalAdmis">0</p>
+        </div>
+        <div class="carte-statistique">
+          <h3>Taux de réussite</h3>
+          <p id="tauxReussite">0 %</p>
+        </div>
 
-            <div class="carte-statistique">
-                <h3>Moyenne générale</h3>
-                <p id="moyenneGenerale">0</p>
-            </div>
+        <div class="carte-statistique">
+          <h3>Meilleur étudiant</h3>
+          <p id="meilleurEtudiant" class="texte-meilleur">-</p>
+          <small id="meilleureNote"></small>
+        </div>
+      </section>
 
-            <div class="carte-statistique">
-                <h3>Etudiants admis</h3>
-                <p id="totalAdmis">0</p>
-            </div>
-            <div class="carte-statistique">
-    <h3>Taux de réussite</h3>
-    <p id="tauxReussite">0 %</p>
+<section class="graphiques">
+  <h2>Analyse des résultats</h2>
+
+  <div class="graphiques-contenu">
+    <article class="carte-graphique">
+      <h3>Répartition des étudiants</h3>
+
+      <div class="graphique-circulaire">
+        <span>Résultats</span>
+      </div>
+
+      <div class="legende">
+        <span><i class="point admis-point"></i> Admis</span>
+        <span><i class="point echec-point"></i> Échec</span>
+      </div>
+    </article>
+
+    <article class="carte-graphique">
+      <h3>Répartition par note</h3>
+
+      <div class="barres">
+        <div class="barre">
+          <span>0–9</span>
+          <div><i style="width: 25%"></i></div>
+        </div>
+
+        <div class="barre">
+          <span>10–12</span>
+          <div><i style="width: 50%"></i></div>
+        </div>
+
+        <div class="barre">
+          <span>13–15</span>
+          <div><i style="width: 75%"></i></div>
+        </div>
+
+        <div class="barre">
+          <span>16–20</span>
+          <div><i style="width: 40%"></i></div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+
+      <section class="formulaire">
+        <h2 id="titreFormulaire">Ajouter un étudiant</h2>
+
+        <form id="formulaireEtudiant">
+          <div class="champ">
+            <label for="nom">Nom</label>
+            <input type="text" id="nom" placeholder="Ex : Ndiaye" required />
+          </div>
+
+          <div class="champ">
+            <label for="prenom">Prénom</label>
+            <input type="text" id="prenom" placeholder="Ex : Khady" required />
+          </div>
+
+          <div class="champ">
+            <label for="email">Email</label>
+            <input type="email"id="email"placeholder="Ex : khady@gmail.com" required/>
+          </div>
+
+          <div class="champ">
+            <label for="classe">Classe</label>
+            <select name="classe" id="classe">
+                <option value="L1">Licence 1</option>
+                <option value="L2">Licence 2</option>
+                <option value="L3">Licence 3</option>
+                <option value="M1">Master 1</option>
+                <option value="M2">Master 2</option>
+            </select>
+            <!-- <input type="" id="classe" placeholder="Ex : L3 Informatique" required/> -->
+          </div>
+
+          <div class="champ">
+            <label for="note">Note sur 20</label>
+            <input type="number" id="note" placeholder="Ex : 15" min="0" max="20" step="0.01"required/>
+          </div>
+
+          <div class="actions-formulaire">
+            <button type="submit" id="btnEnregistrer">
+              Ajouter l'étudiant
+            </button>
+
+            <button type="button" id="btnAnnuler" class="btn-annuler" hidden>
+              Annuler
+            </button>
+          </div>
+        </form>
+
+        <p id="messageErreur" class="erreur"></p>
+        <p id="messageSucces" class="succes"></p>
+      </section>
+
+      <section class="recherche">
+        <h2>Rechercher un étudiant</h2>
+        <input type="search"id="recherche" placeholder="🔎 Rechercher par nom, prénom, email ou classe..." />
+        <div class="outils">
+
+<div class="champ">
+  <label for="filtreResultat">Filtrer par résultat</label>
+  <select id="filtreResultat">
+    <option value="">Tous les résultats</option>
+    <option value="admis">Admis</option>
+    <option value="echec">Échec</option>
+  </select>
 </div>
 
-<div class="carte-statistique">
-    <h3>Meilleur étudiant</h3>
-    <p id="meilleurEtudiant" class="texte-meilleur">-</p>
-    <small id="meilleureNote"></small>
+<div class="champ">
+  <label for="filtreNote">Note minimale</label>
+  <select id="filtreNote">
+    <option value="">Toutes les notes</option>
+    <option value="10">10/20 et plus</option>
+    <option value="12">12/20 et plus</option>
+    <option value="14">14/20 et plus</option>
+    <option value="16">16/20 et plus</option>
+  </select>
 </div>
 
-        </section>
+          <div class="champ">
+            <label for="filtreClasse">Filtrer par classe</label>
+            <select id="filtreClasse">
+              <option value="">Toutes les classes</option>
+            </select>
+          </div>
+
+          <div class="champ">
+            <label for="triEtudiants">Trier par</label>
+            <select id="triEtudiants">
+              <option value="recent">Ajoutés récemment</option>
+              <option value="nom-az">Nom (A → Z)</option>
+              <option value="nom-za">Nom (Z → A)</option>
+              <option value="note-desc">Note (meilleure d'abord)</option>
+              <option value="note-asc">Note (plus faible d'abord)</option>
+              <option value="classe">Classe</option>
+            </select>
+          </div>
+
+          <div class="boutons-export">
+            <button type="button" id="btnExportExcel">
+              <i class="fa-solid fa-file-excel"></i> Exporter Excel
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tableau">
+        <h2>Liste des étudiants</h2>
+        <p>Consultez et gérez les inscriptions.</p>
+
+        <div class="tableau2">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Classe</th>
+                <th>Note</th>
+                <th>Résultat</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="listeEtudiants"></tbody>
+          </table>
+        </div>
+
+<nav class="pagination" aria-label="Pagination des étudiants">
+  <button type="button" disabled>
+    <i class="fa-solid fa-chevron-left"></i>
+    Précédent
+  </button>
+
+  <button type="button" class="page-active"
+          aria-current="page">1</button>
+  <button type="button">2</button>
+  <button type="button">3</button>
+
+  <button type="button">
+    Suivant
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</nav>
+
+<p class="nombre-resultats">
+  Affichage de la page 1
+</p>
 
 
-        <section class="formulaire">
-
-            <h2 id="titreFormulaire">Ajouter un étudiant</h2>
-
-            <form id="formulaireEtudiant">
-
-                <div class="champ">
-                    <label for="nom">Nom</label>
-                    <input type="text"id="nom"placeholder="Ex : Ndiaye"required>
-                </div>
-
-                <div class="champ">
-                    <label for="prenom">Prénom</label>
-                    <input type="text" id="prenom" placeholder="Ex : Khady"required>
-                </div>
-
-                <div class="champ">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="Ex : khady@gmail.com" required>
-                </div>
-
-                <div class="champ">
-                    <label for="classe">Classe</label>
-                    <input type="text"id="classe"placeholder="Ex : L3 Informatique" required>
-                </div>
-
-                <div class="champ">
-                    <label for="note">Note sur 20</label>
-                    <input type="number"id="note" placeholder="Ex : 15" min="0" max="20" step="0.01" required>
-                </div>
-
-                <div class="actions-formulaire">
-                    <button type="submit" id="btnEnregistrer">
-                        Ajouter l'étudiant
-                    </button>
-
-                    <button type="button" id="btnAnnuler" class="btn-annuler"hidden >
-                        Annuler
-                    </button>
-                </div>
-
-            </form>
-
-            <p id="messageErreur" class="erreur"></p>
-            <p id="messageSucces" class="succes"></p>
-        </section>
-
-
-        <section class="recherche">
-
-            <h2>Rechercher un étudiant</h2>
-
-            <input type="search" id="recherche"placeholder="🔎 Rechercher par nom, prénom, email ou classe...">
-            <div class="outils">
-    <div class="champ">
-        <label for="filtreClasse">Filtrer par classe</label>
-        <select id="filtreClasse">
-            <option value="">Toutes les classes</option>
-        </select>
-    </div>
-
-    <div class="champ">
-        <label for="triEtudiants">Trier par</label>
-        <select id="triEtudiants">
-            <option value="recent">Ajoutés récemment</option>
-            <option value="nom-az">Nom (A → Z)</option>
-            <option value="nom-za">Nom (Z → A)</option>
-            <option value="note-desc">Note (meilleure d'abord)</option>
-            <option value="note-asc">Note (plus faible d'abord)</option>
-            <option value="classe">Classe</option>
-        </select>
-    </div>
-
-    <div class="boutons-export">
-        <button type="button" id="btnExportCSV">
-            <i class="fa-solid fa-file-csv"></i> Exporter CSV
-        </button>
-        <button type="button" id="btnExportExcel">
-            <i class="fa-solid fa-file-excel"></i> Exporter Excel
-        </button>
-    </div>
-</div>
-
-        </section>
-
-        <section class="tableau">
-
-            <h2>Liste des étudiants</h2>
-            <p>Consultez et gérez les inscriptions.</p>
-
-            <div class="tableau2">
-
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nom</th>
-                            <th>Prénom</th>
-                            <th>Email</th>
-                            <th>Classe</th>
-                            <th>Note</th>
-                            <th>Résultat</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="listeEtudiants">
-                        
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <p id="aucunEtudiant" class="aucun-etudiant">
-                Aucun étudiant enregistré.
-            </p>
-
-        </section>
-
+        <p id="aucunEtudiant" class="aucun-etudiant">
+          Aucun étudiant enregistré.
+        </p>
+      </section>
     </main>
 
     <footer>
-        <p><i class="fa-regular fa-copyright"></i> 2026 - Application de gestion des étudiants</p>
+      <p>
+        <i class="fa-regular fa-copyright"></i> 2026 - Application de gestion
+        des étudiants
+      </p>
     </footer>
 
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

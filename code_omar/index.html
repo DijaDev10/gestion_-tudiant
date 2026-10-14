@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Artisans du Web</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="texte">
+            <p class="le">ESPACE ADMINISTRATION</p>
+            <h1>Gestion des étudiants UNCHK <i class="fa-solid fa-graduation-cap chapeau" id="icone"></i></i></h1>
+            <p>Gérer les inscriptions et suivez les résultats</p>
+        </div>
+    </header>
+    <main>
+        <section id="statistique">
+            <div class="container">
+                <div class="carte">
+                    <h3>Total Etudiants</h3>
+                    <p id="total">00</p>
+                </div>
+                <div class="carte">
+                    <h3>Moyenne general</h3>
+                    <p id="moyenne">00</p>
+                </div>
+                <div class="carte">
+                    <h3>Etudiant admis</h3>
+                    <p id="admis">00</p>
+                </div>
+            </div>
+        </section>
+        <div class="box-container">
+            <div class="titre">
+                <h2>Ajouter un étudiant</h2>
+            </div>
+            <form action="#" class="e">
+                <div class="details">
+                    <div class="input-box">
+                        <label class="lab">Nom</label>
+                        <input type="text" id="nom" placeholder="ex: Njaay">
+                    </div>
+
+                    <div class="input-box">
+                        <label>Prenom</label>
+                        <input type="text" id="prenom" placeholder="ex: Njaay">
+                    </div>
+
+                    <div class="input-box">
+                        <label>Adresse e-mail</label>
+                        <input type="email" id="email" placeholder="ex: papanjaay07@gmail.com">
+                    </div>
+
+                    <div class="input-box">
+                        <label>Classe</label>
+                        <select name="texte" id="class">
+                            <option value="">Licence 1</option>
+                            <option value="">Licence 2</option>
+                            <option value="">Licence 3</option>
+                            <option value="">Master 1</option>
+                            <option value="">Master 2</option>
+                        </select>
+                        <!-- <input type="text" id="class" placeholder="ex: L1 Ida"> -->
+                    </div>
+
+                    <div class="input-box">
+                        <label>Note sur 20</label>
+                        <input type="number" id="note" placeholder="ex: 15.5">
+                    </div>
+                    <button type="submit" class="bouton" style="cursor: pointer;">Ajouter l'étudiant</button>
+                    <p id="message"></p>
+                </div>
+            </form>
+        </div>
+        </div>
+        <section id="liste">
+            <div class="titre1">
+                <div class="cons">
+                    <h2>Liste des étudiants</h2>
+                    <p>Consultez et Gérez les instructions </p>
+                </div>
+                <div class="rech">
+                    <input type="search" placeholder="🔎Rechercher un etudiant" id="recherche">
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <th>Nom complet</th>
+                    <th>Email</th>
+                    <th>Classe</th>
+                    <th>Note</th>
+                    <th>Résultat</th>
+                    <th>Action</th>
+                </tr>
+                <tbody id="tab"></tbody>
+            </table>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+
+</html>
