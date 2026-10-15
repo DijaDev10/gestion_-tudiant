@@ -6,23 +6,15 @@
     <title>Gestion des étudiants</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+      rel="stylesheet"/>
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="style2.css" />
   </head>
   <body>
     <header>
-      <button
-        type="button"
-        id="btnTheme"
-        class="btn-theme"
-        aria-label="Basculer le mode sombre"
-        title="Mode sombre / clair"
-      >
+      <button type="button"id="btnTheme"class="btn-theme"aria-label="Basculer le mode sombre"title="Mode sombre / clair">
         <i class="fa-solid fa-moon"></i>
       </button>
       <div class="container">
@@ -35,7 +27,6 @@
     </header>
 
     <main class="container">
-      <!-- STATISTIQUES -->
       <section class="statistiques">
         <div class="carte-statistique">
           <h3>Total étudiants</h3>
@@ -64,7 +55,6 @@
         </div>
       </section>
 
-      <!-- GRAPHIQUES -->
       <section class="graphiques">
         <h2>Statistiques graphiques</h2>
         <div class="grille-graphiques">
@@ -76,10 +66,18 @@
           <div class="bloc-graphique">
             <h3>Admis / Ajournés</h3>
             <div class="donut-zone">
-              <div id="graphDonut" class="donut"><span id="donutPct">0 %</span></div>
+              <div id="graphDonut" class="donut">
+                <span id="donutPct">0 %</span>
+              </div>
               <ul class="legende">
-                <li><span class="pastille pastille-admis"></span>Admis : <b id="legAdmis">0</b></li>
-                <li><span class="pastille pastille-echec"></span>Echec : <b id="legEchec">0</b></li>
+                <li>
+                  <span class="pastille pastille-admis"></span>Admis :
+                  <b id="legAdmis">0</b>
+                </li>
+                <li>
+                  <span class="pastille pastille-echec"></span>Echec :
+                  <b id="legEchec">0</b>
+                </li>
               </ul>
             </div>
           </div>
@@ -91,7 +89,6 @@
         </div>
       </section>
 
-      <!-- FORMULAIRE D'AJOUT -->
       <section class="formulaire">
         <h2 id="titreFormulaire">Ajouter un étudiant</h2>
 
@@ -154,7 +151,6 @@
         <p id="messageSucces" class="succes"></p>
       </section>
 
-      <!-- RECHERCHE / FILTRES / OUTILS -->
       <section class="recherche">
         <h2>Rechercher un étudiant</h2>
         <input
@@ -224,7 +220,6 @@
         </div>
       </section>
 
-      <!-- TABLEAU -->
       <section class="tableau">
         <h2>Liste des étudiants</h2>
         <p id="compteurResultats">Consultez et gérez les inscriptions.</p>
@@ -263,12 +258,21 @@
       </p>
     </footer>
 
-    <!-- MODALE DE MODIFICATION -->
     <div id="modalEdition" class="modal" hidden>
-      <div class="modal-boite" role="dialog" aria-modal="true" aria-labelledby="titreModal">
+      <div
+        class="modal-boite"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titreModal"
+      >
         <div class="modal-entete">
           <h2 id="titreModal">Modifier l'étudiant</h2>
-          <button type="button" class="modal-fermer" data-fermer aria-label="Fermer">
+          <button
+            type="button"
+            class="modal-fermer"
+            data-fermer
+            aria-label="Fermer"
+          >
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -298,7 +302,14 @@
           </div>
           <div class="champ">
             <label for="editNote">Note sur 20</label>
-            <input type="number" id="editNote" min="0" max="20" step="0.01" required />
+            <input
+              type="number"
+              id="editNote"
+              min="0"
+              max="20"
+              step="0.01"
+              required
+            />
           </div>
 
           <p id="erreurEdition" class="erreur colonne-pleine"></p>
@@ -307,28 +318,41 @@
             <button type="submit">
               <i class="fa-solid fa-floppy-disk"></i> Enregistrer
             </button>
-            <button type="button" class="btn-annuler" data-fermer>Annuler</button>
+            <button type="button" class="btn-annuler" data-fermer>
+              Annuler
+            </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- MODALE DE CONFIRMATION -->
     <div id="modalConfirmation" class="modal" hidden>
-      <div class="modal-boite modal-petite" role="alertdialog" aria-modal="true" aria-labelledby="titreConfirm">
-        <div class="icone-alerte"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <div
+        class="modal-boite modal-petite"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="titreConfirm"
+      >
+        <div class="icone-alerte">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
         <h2 id="titreConfirm">Supprimer cet étudiant ?</h2>
         <p id="texteConfirm">Cette action est irréversible.</p>
         <div class="actions-confirm">
-          <button type="button" id="btnConfirmerSuppression" class="btn-supprimer">
+          <button
+            type="button"
+            id="btnConfirmerSuppression"
+            class="btn-supprimer"
+          >
             <i class="fa-solid fa-trash"></i> Oui, supprimer
           </button>
-          <button type="button" id="btnAnnulerSuppression" class="btn-annuler">Annuler</button>
+          <button type="button" id="btnAnnulerSuppression" class="btn-annuler">
+            Annuler
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- NOTIFICATION -->
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>

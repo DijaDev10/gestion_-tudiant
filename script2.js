@@ -1,64 +1,39 @@
 "use strict";
-
-/* =====================================================
-   GESTION DES ÉTUDIANTS UNCHK
-   ===================================================== */
-
 const CLE_STOCKAGE = "etudiantsUNCHK";
-const CLE_THEME = "themeUNCHK";
-const NOTE_PASSAGE = 10;
-const CLASSES = ["L1", "L2", "L3", "M1", "M2"];
-const NOMS_CLASSES = {
-  L1: "Licence 1",
-  L2: "Licence 2",
-  L3: "Licence 3",
-  M1: "Master 1",
-  M2: "Master 2",
-};
 
-/* ---------- Sélecteurs ---------- */
-const $ = (id) => document.getElementById(id);
-
-const formulaire = $("formulaireEtudiant");
-const champNom = $("nom");
-const champPrenom = $("prenom");
-const champEmail = $("email");
-const champClasse = $("classe");
-const champNote = $("note");
-const messageErreur = $("messageErreur");
-const messageSucces = $("messageSucces");
-
-const champRecherche = $("recherche");
-const filtreClasse = $("filtreClasse");
-const filtreResultat = $("filtreResultat");
-const triEtudiants = $("triEtudiants");
-const taillePage = $("taillePage");
-
-const listeEtudiants = $("listeEtudiants");
-const aucunEtudiant = $("aucunEtudiant");
-const compteurResultats = $("compteurResultats");
-const pagination = $("pagination");
-
-const modalEdition = $("modalEdition");
-const formulaireEdition = $("formulaireEdition");
-const modalConfirmation = $("modalConfirmation");
-const toast = $("toast");
-
-/* ---------- État ---------- */
 let etudiants = charger();
-let pageCourante = 1;
-let idEnEdition = null;
-let idASupprimer = null;
-let minuteurToast = null;
-let minuteurRecherche = null;
-let dernierFocus = null;
 
-/* =====================================================
-   STOCKAGE
-   ===================================================== */
+let pageActuelle = 1;
+let idEtudiantAModifier = null;
+let idEtudiantASupprimer = null;
+
+let taillePage = 10;
+
+const formulaire = document.getElementById("formulaireEtudiant");
+const formulaireEdition = document.getElementById("formulaireEdition");
+
+const messageErreur = document.getElementById("messageErreur");
+const messageSucces = document.getElementById("messageSucces");
+const erreurEdition = document.getElementById("erreurEdition");
+
+const listeEtudiants = document.getElementById("listeEtudiants");
+
+const modalEdition = document.getElementById("modalEdition");
+const modalConfirmation = document.getElementById("modalConfirmation");
+
+const recherche = document.getElementById("recherche");
+const filtreClasse = document.getElementById("filtreClasse");
+const filtreResultat = document.getElementById("filtreResultat");
+const triEtudiants = document.getElementById("triEtudiants");
+const selectTaillePage = document.getElementById("taillePage");
+
+
 function charger() {
   try {
-    const donnees = JSON.parse(localStorage.getItem(CLE_STOCKAGE));
+    const donnees = JSON.parse(
+      localStorage.getItem(CLE_STOCKAGE)
+    );
+
     return Array.isArray(donnees) ? donnees : [];
   } catch {
     return [];
@@ -67,19 +42,18 @@ function charger() {
 
 function sauvegarder() {
   try {
-    localStorage.setItem(CLE_STOCKAGE, JSON.stringify(etudiants));
-  } catch {
-    afficherToast("Impossible d'enregistrer les données.", true);
+    localStorage.setItem(
+      CLE_STOCKAGE,
+      JSON.stringify(etudiants)
+    );
+    return true;
+  } catch (erreur) {
+    afficherToast("Impossible de sauvegarder les données.", true);
+    return false;
   }
 }
 
-function nouvelId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
 
-/* =====================================================
-   UTILITAIRES
-   ===================================================== */
 function echapper(texte) {
   return String(texte)
     .replace(/&/g, "&amp;")
@@ -89,814 +63,945 @@ function echapper(texte) {
     .replace(/'/g, "&#39;");
 }
 
-function echapperRegex(texte) {
-  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function normaliser(texte) {
-  return String(texte)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
-function surligner(texte, terme) {
-  const sur = echapper(texte);
-  if (!terme) return sur;
-  const regex = new RegExp("(" + echapperRegex(echapper(terme)) + ")", "gi");
-  return sur.replace(regex, "<mark>$1</mark>");
-}
-
-function formaterNote(note) {
-  return Number(note).toLocaleString("fr-FR", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
-}
-
-function estAdmis(note) {
-  return Number(note) >= NOTE_PASSAGE;
-}
-
-function emailValide(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-}
+let minuterieToast;
 
 function afficherToast(message, erreur = false) {
+  const toast = document.getElementById("toast");
+
   toast.textContent = message;
   toast.classList.toggle("toast-erreur", erreur);
   toast.classList.add("visible");
-  clearTimeout(minuteurToast);
-  minuteurToast = setTimeout(() => toast.classList.remove("visible"), 3200);
+
+  clearTimeout(minuterieToast);
+
+  minuterieToast = setTimeout(() => {
+    toast.classList.remove("visible");
+  }, 3000);
 }
 
-/* =====================================================
-   VALIDATION
-   ===================================================== */
-function valider(donnees, idIgnore = null) {
-  const erreurs = [];
-  const champsInvalides = [];
 
-  if (donnees.nom.length < 2) {
-    erreurs.push("Le nom doit contenir au moins 2 caractères.");
-    champsInvalides.push("nom");
-  }
-  if (donnees.prenom.length < 2) {
-    erreurs.push("Le prénom doit contenir au moins 2 caractères.");
-    champsInvalides.push("prenom");
-  }
-  if (!emailValide(donnees.email)) {
-    erreurs.push("L'adresse email n'est pas valide.");
-    champsInvalides.push("email");
-  } else if (
-    etudiants.some(
-      (e) =>
-        e.id !== idIgnore &&
-        e.email.toLowerCase() === donnees.email.toLowerCase(),
-    )
-  ) {
-    erreurs.push("Cet email est déjà utilisé par un autre étudiant.");
-    champsInvalides.push("email");
-  }
-  if (!CLASSES.includes(donnees.classe)) {
-    erreurs.push("La classe choisie n'est pas valide.");
-    champsInvalides.push("classe");
-  }
-  if (
-    donnees.note === "" ||
-    Number.isNaN(Number(donnees.note)) ||
-    Number(donnees.note) < 0 ||
-    Number(donnees.note) > 20
-  ) {
-    erreurs.push("La note doit être comprise entre 0 et 20.");
-    champsInvalides.push("note");
-  }
-
-  return { erreurs, champsInvalides };
+function afficherErreur(message) {
+  messageErreur.textContent = message;
+  messageSucces.textContent = "";
 }
 
-/* =====================================================
-   AJOUT
-   ===================================================== */
-function lireFormulaireAjout() {
-  return {
-    nom: champNom.value.trim(),
-    prenom: champPrenom.value.trim(),
-    email: champEmail.value.trim(),
-    classe: champClasse.value,
-    note: champNote.value.trim(),
-  };
+function afficherSucces(message) {
+  messageSucces.textContent = message;
+  messageErreur.textContent = "";
 }
 
-function marquerInvalides(champs, prefixe = "") {
-  const ids = ["nom", "prenom", "email", "classe", "note"];
-  ids.forEach((nom) => {
-    const el = $(
-      prefixe ? prefixe + nom.charAt(0).toUpperCase() + nom.slice(1) : nom,
-    );
-    if (el) el.classList.toggle("invalide", champs.includes(nom));
-  });
-}
-
-formulaire.addEventListener("submit", (e) => {
-  e.preventDefault();
+function effacerMessages() {
   messageErreur.textContent = "";
   messageSucces.textContent = "";
+  erreurEdition.textContent = "";
+}
 
-  const donnees = lireFormulaireAjout();
-  const { erreurs, champsInvalides } = valider(donnees);
-  marquerInvalides(champsInvalides);
 
-  if (erreurs.length) {
-    messageErreur.textContent = erreurs[0];
+
+function validerEtudiant(nom, prenom, email, note, liste = etudiants, idIgnore = null) {
+  if (!nom.trim() || !prenom.trim() || !email.trim() || note === "") {
+    return "Tous les champs sont obligatoires.";
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return "Veuillez saisir une adresse email valide.";
+  }
+
+  const valeurNote = Number(note);
+
+  if (!Number.isFinite(valeurNote) || valeurNote < 0 || valeurNote > 20) {
+    return "La note doit être comprise entre 0 et 20.";
+  }
+
+  const emailExiste = liste.some((etudiant) =>
+    etudiant.email.toLowerCase() === email.trim().toLowerCase()
+    && etudiant.id !== idIgnore
+  );
+
+  if (emailExiste) {
+    return "Cette adresse email existe déjà.";
+  }
+
+  return "";
+}
+
+
+formulaire.addEventListener("submit", function (evenement) {
+  evenement.preventDefault();
+
+  const nom = document.getElementById("nom").value.trim();
+  const prenom = document.getElementById("prenom").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const classe = document.getElementById("classe").value;
+  const note = document.getElementById("note").value;
+
+  const erreur = validerEtudiant(nom, prenom, email, note);
+
+  if (erreur) {
+    afficherErreur(erreur);
     return;
   }
 
-  etudiants.push({
-    id: nouvelId(),
-    nom: donnees.nom,
-    prenom: donnees.prenom,
-    email: donnees.email,
-    classe: donnees.classe,
-    note: Number(donnees.note),
-    creeLe: Date.now(),
-  });
-  sauvegarder();
+  const nouvelEtudiant = {
+    id: Date.now(),
+    nom: nom,
+    prenom: prenom,
+    email: email,
+    classe: classe,
+    note: Number(note)
+  };
+
+  etudiants.push(nouvelEtudiant);
+
+  if (!sauvegarder()) {
+    etudiants.pop();
+    return;
+  }
 
   formulaire.reset();
-  marquerInvalides([]);
-  messageSucces.textContent = "Étudiant ajouté avec succès.";
-  setTimeout(() => (messageSucces.textContent = ""), 3000);
+  effacerMessages();
+  pageActuelle = 1;
 
-  if (triEtudiants.value === "recent") pageCourante = 1;
-  afficher();
-  champNom.focus();
+  afficherSucces("Étudiant ajouté avec succès !");
+  afficherToast("Étudiant ajouté avec succès.");
+
+  actualiserApplication();
 });
 
-formulaire.addEventListener("reset", () => {
-  messageErreur.textContent = "";
-  messageSucces.textContent = "";
-  marquerInvalides([]);
-});
 
-["nom", "prenom", "email", "classe", "note"].forEach((nom) => {
-  $(nom).addEventListener("input", () => $(nom).classList.remove("invalide"));
-});
+function obtenirResultat(note) {
+  if (Number(note) >= 10) {
+    return "Admis";
+  }
 
-/* =====================================================
-   MODALES (gestion commune)
-   ===================================================== */
-function ouvrirModal(modal, focusSur) {
-  dernierFocus = document.activeElement;
-  modal.hidden = false;
-  document.body.style.overflow = "hidden";
-  if (focusSur) setTimeout(() => focusSur.focus(), 30);
+  return "Ajourné";
 }
 
-function fermerModal(modal) {
-  modal.hidden = true;
-  if (modalEdition.hidden && modalConfirmation.hidden) {
-    document.body.style.overflow = "";
-  }
-  if (dernierFocus && typeof dernierFocus.focus === "function") {
-    dernierFocus.focus();
-  }
-}
 
-[modalEdition, modalConfirmation].forEach((modal) => {
-  // Clic sur le fond sombre
-  modal.addEventListener("mousedown", (e) => {
-    if (e.target === modal) fermerModal(modal);
+function afficherEtudiants(liste) {
+  listeEtudiants.innerHTML = "";
+
+  const debut = (pageActuelle - 1) * taillePage;
+  const etudiantsPage = liste.slice(debut, debut + taillePage);
+
+  document.getElementById("aucunEtudiant").hidden = liste.length > 0;
+
+  etudiantsPage.forEach((etudiant, index) => {
+    const ligne = document.createElement("tr");
+
+    const resultat = obtenirResultat(etudiant.note);
+    const classeResultat = resultat === "Admis" ? "admis" : "echec";
+
+    ligne.innerHTML = `
+      <td>${debut + index + 1}</td>
+      <td>${echapper(etudiant.nom)}</td>
+      <td>${echapper(etudiant.prenom)}</td>
+      <td>${echapper(etudiant.email)}</td>
+      <td>${echapper(etudiant.classe)}</td>
+      <td>${Number(etudiant.note).toFixed(2)} / 20</td>
+      <td>
+        <span class="${classeResultat}">${resultat}</span>
+      </td>
+      <td>
+        <div class="cellule-actions">
+          <button type="button" class="btn-modifier"
+            data-action="modifier" data-id="${etudiant.id}"
+            aria-label="Modifier ${echapper(etudiant.prenom)}">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+
+          <button type="button" class="btn-supprimer"
+            data-action="supprimer" data-id="${etudiant.id}"
+            aria-label="Supprimer ${echapper(etudiant.prenom)}">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+
+    listeEtudiants.appendChild(ligne);
   });
-});
 
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
-  if (!modalConfirmation.hidden) fermerModal(modalConfirmation);
-  else if (!modalEdition.hidden) fermerModal(modalEdition);
-});
+  document.getElementById("compteurResultats").textContent =
+    `${liste.length} étudiant(s) trouvé(s).`;
 
-/* =====================================================
-   MODIFICATION (fenêtre modale)
-   ===================================================== */
-function ouvrirEdition(id) {
-  const etu = etudiants.find((x) => x.id === id);
-  if (!etu) return;
-
-  idEnEdition = id;
-  $("editNom").value = etu.nom;
-  $("editPrenom").value = etu.prenom;
-  $("editEmail").value = etu.email;
-  $("editClasse").value = etu.classe;
-  $("editNote").value = etu.note;
-  $("erreurEdition").textContent = "";
-  marquerInvalides([], "edit");
-  ouvrirModal(modalEdition, $("editNom"));
+  afficherPagination(liste.length);
 }
 
-modalEdition.querySelectorAll("[data-fermer]").forEach((btn) => {
-  btn.addEventListener("click", () => fermerModal(modalEdition));
-});
 
-formulaireEdition.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const donnees = {
-    nom: $("editNom").value.trim(),
-    prenom: $("editPrenom").value.trim(),
-    email: $("editEmail").value.trim(),
-    classe: $("editClasse").value,
-    note: $("editNote").value.trim(),
-  };
+function ouvrirEdition(id) {
+  const etudiant = etudiants.find((element) => element.id === id);
 
-  const { erreurs, champsInvalides } = valider(donnees, idEnEdition);
-  marquerInvalides(champsInvalides, "edit");
-  if (erreurs.length) {
-    $("erreurEdition").textContent = erreurs[0];
+  if (!etudiant) {
+    afficherToast("Étudiant introuvable.", true);
     return;
   }
 
-  const etu = etudiants.find((x) => x.id === idEnEdition);
-  if (etu) {
-    etu.nom = donnees.nom;
-    etu.prenom = donnees.prenom;
-    etu.email = donnees.email;
-    etu.classe = donnees.classe;
-    etu.note = Number(donnees.note);
-    sauvegarder();
-    afficher();
-    afficherToast("Étudiant modifié avec succès.");
-  }
-  fermerModal(modalEdition);
-});
+  idEtudiantAModifier = id;
 
-["Nom", "Prenom", "Email", "Classe", "Note"].forEach((suffixe) => {
-  $("edit" + suffixe).addEventListener("input", (e) =>
-    e.target.classList.remove("invalide"),
-  );
-});
+  document.getElementById("editNom").value = etudiant.nom;
+  document.getElementById("editPrenom").value = etudiant.prenom;
+  document.getElementById("editEmail").value = etudiant.email;
+  document.getElementById("editClasse").value = etudiant.classe;
+  document.getElementById("editNote").value = etudiant.note;
 
-/* =====================================================
-   SUPPRESSION (confirmation personnalisée)
-   ===================================================== */
-function demanderSuppression(id) {
-  const etu = etudiants.find((x) => x.id === id);
-  if (!etu) return;
-  idASupprimer = id;
-  $("texteConfirm").textContent =
-    `Vous êtes sur le point de supprimer ${etu.prenom} ${etu.nom}. Cette action est irréversible.`;
-  ouvrirModal(modalConfirmation, $("btnAnnulerSuppression"));
+  erreurEdition.textContent = "";
+  modalEdition.hidden = false;
+
+  document.getElementById("editNom").focus();
 }
 
-$("btnAnnulerSuppression").addEventListener("click", () => {
-  idASupprimer = null;
-  fermerModal(modalConfirmation);
-});
 
-$("btnConfirmerSuppression").addEventListener("click", () => {
-  if (idASupprimer) {
-    etudiants = etudiants.filter((x) => x.id !== idASupprimer);
-    sauvegarder();
-    afficher();
-    afficherToast("Étudiant supprimé.");
+
+formulaireEdition.addEventListener("submit", function (evenement) {
+  evenement.preventDefault();
+
+  const etudiant = etudiants.find(
+    (element) => element.id === idEtudiantAModifier
+  );
+
+  if (!etudiant) {
+    erreurEdition.textContent = "Étudiant introuvable.";
+    return;
   }
-  idASupprimer = null;
-  fermerModal(modalConfirmation);
+
+  const nom = document.getElementById("editNom").value.trim();
+  const prenom = document.getElementById("editPrenom").value.trim();
+  const email = document.getElementById("editEmail").value.trim();
+  const classe = document.getElementById("editClasse").value;
+  const note = document.getElementById("editNote").value;
+
+  const erreur = validerEtudiant(
+    nom, prenom, email, note, etudiants, idEtudiantAModifier
+  );
+
+  if (erreur) {
+    erreurEdition.textContent = erreur;
+    return;
+  }
+
+  
+  const ancienneVersion = { ...etudiant };
+
+  etudiant.nom = nom;
+  etudiant.prenom = prenom;
+  etudiant.email = email;
+  etudiant.classe = classe;
+  etudiant.note = Number(note);
+
+  if (!sauvegarder()) {
+    Object.assign(etudiant, ancienneVersion);
+    return;
+  }
+
+  modalEdition.hidden = true;
+  idEtudiantAModifier = null;
+
+  afficherToast("Modification enregistrée.");
+  actualiserApplication();
 });
 
-/* =====================================================
-   RECHERCHE / FILTRES / TRI
-   ===================================================== */
-function etudiantsFiltres() {
-  const terme = normaliser(champRecherche.value);
-  const classe = filtreClasse.value;
-  const resultat = filtreResultat.value;
+function ouvrirConfirmation(id) {
+  const etudiant = etudiants.find(
+    (element) => String(element.id) === String(id)
+  );
 
-  let liste = etudiants.filter((e) => {
-    if (classe && e.classe !== classe) return false;
-    if (resultat === "admis" && !estAdmis(e.note)) return false;
-    if (resultat === "echec" && estAdmis(e.note)) return false;
-    if (!terme) return true;
-    const texte = normaliser(
-      [e.nom, e.prenom, e.email, e.classe, NOMS_CLASSES[e.classe]].join(" "),
+  if (!etudiant) {
+    console.log("Identifiant reçu :", id);
+    console.log("Liste des étudiants :", etudiants);
+
+    afficherToast("Étudiant introuvable. Vérifiez son identifiant.", true);
+    return;
+  }
+
+  idEtudiantASupprimer = etudiant.id;
+
+  document.getElementById("texteConfirm").textContent =
+    `Voulez-vous supprimer ${etudiant.prenom} ${etudiant.nom} ?`;
+
+  modalConfirmation.hidden = false;
+}
+
+
+
+
+// function ouvrirConfirmation(id) {
+//   const etudiant = etudiants.find((element) => element.id === id);
+
+//   if (!etudiant) {
+//     afficherToast("Étudiant introuvable.", true);
+//     return;
+//   }
+
+//   idEtudiantASupprimer = id;
+
+//   document.getElementById("texteConfirm").textContent =
+//     `Voulez-vous supprimer ${etudiant.prenom} ${etudiant.nom} ?`;
+
+//   modalConfirmation.hidden = false;
+// }
+
+
+document.getElementById("btnConfirmerSuppression")
+  .addEventListener("click", function () {
+    const index = etudiants.findIndex(
+      (element) => element.id === idEtudiantASupprimer
     );
-    return terme.split(/\s+/).every((mot) => texte.includes(mot));
+    
+
+    if (index === -1) {
+      modalConfirmation.hidden = true;
+      afficherToast("Étudiant introuvable.", true);
+      return;
+    }
+
+    const etudiantSupprime = etudiants[index];
+
+    etudiants.splice(index, 1);
+
+    if (!sauvegarder()) {
+      etudiants.splice(index, 0, etudiantSupprime);
+      return;
+    }
+
+    modalConfirmation.hidden = true;
+    idEtudiantASupprimer = null;
+
+    afficherToast("Étudiant supprimé.");
+    actualiserApplication();
+  });
+  
+
+
+document.querySelectorAll("[data-fermer]").forEach((bouton) => {
+  bouton.addEventListener("click", function () {
+    modalEdition.hidden = true;
+    idEtudiantAModifier = null;
+  });
+});
+
+document.getElementById("btnAnnulerSuppression")
+  .addEventListener("click", function () {
+    modalConfirmation.hidden = true;
+    idEtudiantASupprimer = null;
   });
 
-  const comparerTexte = (a, b) => a.localeCompare(b, "fr", { sensitivity: "base" });
+document.addEventListener("keydown", function (evenement) {
+  if (evenement.key === "Escape") {
+    modalEdition.hidden = true;
+    modalConfirmation.hidden = true;
+
+    idEtudiantAModifier = null;
+    idEtudiantASupprimer = null;
+  }
+});
+
+listeEtudiants.addEventListener("click", function (evenement) {
+  const bouton = evenement.target.closest("button[data-action]");
+
+  if (!bouton) {
+    return;
+  }
+
+  // On conserve l'identifiant sous forme de chaîne.
+  const id = bouton.dataset.id;
+
+  if (bouton.dataset.action === "modifier") {
+    ouvrirEdition(id);
+  }
+
+  if (bouton.dataset.action === "supprimer") {
+    ouvrirConfirmation(id);
+  }
+});
+
+
+function obtenirEtudiantsFiltres() {
+  
+  const texte = recherche.value.trim().toLowerCase();
+
+  
+  const classeChoisie = filtreClasse.value;
+  const resultatChoisi = filtreResultat.value;
+
+  
+  let resultat = etudiants.filter((etudiant) => {
+    const correspondTexte =
+      etudiant.nom.toLowerCase().includes(texte) ||
+      etudiant.prenom.toLowerCase().includes(texte) ||
+      etudiant.email.toLowerCase().includes(texte) ||
+      etudiant.classe.toLowerCase().includes(texte);
+
+    const correspondClasse =
+      classeChoisie === "" || etudiant.classe === classeChoisie;
+
+    const correspondResultat =
+      resultatChoisi === "" ||
+      (resultatChoisi === "admis" && Number(etudiant.note) >= 10) ||
+      (resultatChoisi === "echec" && Number(etudiant.note) < 10);
+
+    return correspondTexte && correspondClasse && correspondResultat;
+  });
+
 
   switch (triEtudiants.value) {
     case "nom-az":
-      liste.sort((a, b) => comparerTexte(a.nom, b.nom) || comparerTexte(a.prenom, b.prenom));
+      resultat.sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
       break;
+
     case "nom-za":
-      liste.sort((a, b) => comparerTexte(b.nom, a.nom) || comparerTexte(b.prenom, a.prenom));
+      resultat.sort((a, b) => b.nom.localeCompare(a.nom, "fr"));
       break;
+
     case "note-desc":
-      liste.sort((a, b) => b.note - a.note);
+      resultat.sort((a, b) => Number(b.note) - Number(a.note));
       break;
+
     case "note-asc":
-      liste.sort((a, b) => a.note - b.note);
+      resultat.sort((a, b) => Number(a.note) - Number(b.note));
       break;
+
     case "classe":
-      liste.sort(
-        (a, b) =>
-          CLASSES.indexOf(a.classe) - CLASSES.indexOf(b.classe) ||
-          comparerTexte(a.nom, b.nom),
-      );
+      resultat.sort((a, b) => a.classe.localeCompare(b.classe, "fr"));
       break;
-    default: // recent
-      liste.sort((a, b) => (b.creeLe || 0) - (a.creeLe || 0));
+
+    case "recent":
+      resultat.sort((a, b) => Number(b.id) - Number(a.id));
+      break;
   }
-  return liste;
-}
 
-champRecherche.addEventListener("input", () => {
-  clearTimeout(minuteurRecherche);
-  minuteurRecherche = setTimeout(() => {
-    pageCourante = 1;
-    afficher();
-  }, 120);
-});
-
-[filtreClasse, filtreResultat, triEtudiants, taillePage].forEach((el) => {
-  el.addEventListener("change", () => {
-    pageCourante = 1;
-    afficher();
-  });
-});
-
-$("btnReinitFiltres").addEventListener("click", () => {
-  champRecherche.value = "";
-  filtreClasse.value = "";
-  filtreResultat.value = "";
-  triEtudiants.value = "recent";
-  pageCourante = 1;
-  afficher();
-});
-
-/* =====================================================
-   AFFICHAGE : STATISTIQUES
-   ===================================================== */
-function afficherStatistiques() {
-  const total = etudiants.length;
-  const admis = etudiants.filter((e) => estAdmis(e.note)).length;
-  const somme = etudiants.reduce((s, e) => s + e.note, 0);
-  const moyenne = total ? somme / total : 0;
-  const taux = total ? (admis / total) * 100 : 0;
-
-  $("totalEtudiants").textContent = total;
-  $("moyenneGenerale").textContent = formaterNote(moyenne);
-  $("totalAdmis").textContent = admis;
-  $("tauxReussite").textContent =
-    taux.toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " %";
-
-  if (total) {
-    const meilleur = etudiants.reduce((m, e) => (e.note > m.note ? e : m));
-    $("meilleurEtudiant").textContent = `${meilleur.prenom} ${meilleur.nom}`;
-    $("meilleureNote").textContent = `${formaterNote(meilleur.note)} / 20`;
-  } else {
-    $("meilleurEtudiant").textContent = "-";
-    $("meilleureNote").textContent = "";
-  }
-}
-
-/* =====================================================
-   AFFICHAGE : GRAPHIQUES
-   ===================================================== */
-function dessinerBarres(conteneur, lignes) {
-  const max = Math.max(...lignes.map((l) => l.valeur), 0);
-  if (!max) {
-    conteneur.innerHTML = '<p class="vide-graphique">Aucune donnée.</p>';
-    return;
-  }
-  conteneur.innerHTML = lignes
-    .map(
-      (l) => `
-      <div class="barre-ligne">
-        <span>${echapper(l.libelle)}</span>
-        <div class="barre-piste"><div class="barre-remplie" style="width:${(l.valeur / max) * 100}%"></div></div>
-        <span class="barre-valeur">${l.valeur}</span>
-      </div>`,
-    )
-    .join("");
-}
-
-function afficherGraphiques() {
-  // Étudiants par classe
-  dessinerBarres(
-    $("graphClasses"),
-    CLASSES.map((c) => ({
-      libelle: c,
-      valeur: etudiants.filter((e) => e.classe === c).length,
-    })),
-  );
-
-  // Admis / ajournés
-  const total = etudiants.length;
-  const admis = etudiants.filter((e) => estAdmis(e.note)).length;
-  const pct = total ? Math.round((admis / total) * 100) : 0;
-  $("graphDonut").style.setProperty("--pct", total ? (admis / total) * 100 : 0);
-  $("donutPct").textContent = pct + " %";
-  $("legAdmis").textContent = admis;
-  $("legEchec").textContent = total - admis;
-
-  // Répartition des notes
-  const tranches = [
-    { libelle: "0 – 5", min: 0, max: 5 },
-    { libelle: "5 – 10", min: 5, max: 10 },
-    { libelle: "10 – 15", min: 10, max: 15 },
-    { libelle: "15 – 20", min: 15, max: 20.01 },
-  ];
-  dessinerBarres(
-    $("graphNotes"),
-    tranches.map((t) => ({
-      libelle: t.libelle,
-      valeur: etudiants.filter((e) => e.note >= t.min && e.note < t.max).length,
-    })),
-  );
-}
-
-/* =====================================================
-   AFFICHAGE : TABLEAU + PAGINATION
-   ===================================================== */
-function pagesAAfficher(courante, totalPages) {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-  const pages = new Set([1, totalPages, courante, courante - 1, courante + 1]);
-  const triees = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
-  const resultat = [];
-  triees.forEach((p, i) => {
-    if (i > 0 && p - triees[i - 1] > 1) resultat.push("…");
-    resultat.push(p);
-  });
   return resultat;
 }
 
-function afficherPagination(totalPages) {
-  if (totalPages <= 1) {
-    pagination.innerHTML = "";
+
+
+function actualiserTableau() {
+  const resultat = obtenirEtudiantsFiltres();
+
+  const nombrePages = Math.ceil(resultat.length / taillePage);
+
+
+  if (nombrePages === 0) {
+    pageActuelle = 1;
+  } else if (pageActuelle > nombrePages) {
+    pageActuelle = nombrePages;
+  }
+
+  afficherEtudiants(resultat);
+}
+
+
+recherche.addEventListener("input", function () {
+  pageActuelle = 1;
+  actualiserTableau();
+});
+
+filtreClasse.addEventListener("change", function () {
+  pageActuelle = 1;
+  actualiserTableau();
+});
+
+filtreResultat.addEventListener("change", function () {
+  pageActuelle = 1;
+  actualiserTableau();
+});
+
+triEtudiants.addEventListener("change", function () {
+  pageActuelle = 1;
+  actualiserTableau();
+});
+
+selectTaillePage.addEventListener("change", function () {
+  taillePage = Number(selectTaillePage.value);
+  pageActuelle = 1;
+  actualiserTableau();
+});
+
+
+document.getElementById("btnReinitFiltres")
+  .addEventListener("click", function () {
+    recherche.value = "";
+    filtreClasse.value = "";
+    filtreResultat.value = "";
+    triEtudiants.value = "recent";
+    selectTaillePage.value = "10";
+
+    taillePage = 10;
+    pageActuelle = 1;
+
+    actualiserTableau();
+
+    afficherToast("Filtres réinitialisés.");
+  });
+
+
+function afficherPagination(total) {
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
+
+  const nombrePages = Math.ceil(total / taillePage);
+
+  if (nombrePages <= 1) {
     return;
   }
-  const boutons = [];
-  boutons.push(
-    `<button type="button" data-page="${pageCourante - 1}" ${pageCourante === 1 ? "disabled" : ""} aria-label="Page précédente"><i class="fa-solid fa-chevron-left"></i></button>`,
-  );
-  pagesAAfficher(pageCourante, totalPages).forEach((p) => {
-    if (p === "…") {
-      boutons.push('<button type="button" disabled>…</button>');
-    } else {
-      boutons.push(
-        `<button type="button" data-page="${p}" class="${p === pageCourante ? "actif" : ""}" ${p === pageCourante ? 'aria-current="page"' : ""}>${p}</button>`,
-      );
+
+  const precedent = document.createElement("button");
+  precedent.type = "button";
+  precedent.textContent = "←";
+  precedent.disabled = pageActuelle === 1;
+  precedent.setAttribute("aria-label", "Page précédente");
+
+  precedent.addEventListener("click", function () {
+    if (pageActuelle > 1) {
+      pageActuelle--;
+      actualiserTableau();
     }
   });
-  boutons.push(
-    `<button type="button" data-page="${pageCourante + 1}" ${pageCourante === totalPages ? "disabled" : ""} aria-label="Page suivante"><i class="fa-solid fa-chevron-right"></i></button>`,
+
+  pagination.appendChild(precedent);
+
+  for (let page = 1; page <= nombrePages; page++) {
+    const bouton = document.createElement("button");
+
+    bouton.type = "button";
+    bouton.textContent = page;
+
+    if (page === pageActuelle) {
+      bouton.classList.add("actif");
+      bouton.setAttribute("aria-current", "page");
+    }
+
+    bouton.addEventListener("click", function () {
+      pageActuelle = page;
+      actualiserTableau();
+    });
+
+    pagination.appendChild(bouton);
+  }
+
+  const suivant = document.createElement("button");
+  suivant.type = "button";
+  suivant.textContent = "→";
+  suivant.disabled = pageActuelle === nombrePages;
+  suivant.setAttribute("aria-label", "Page suivante");
+
+  suivant.addEventListener("click", function () {
+    if (pageActuelle < nombrePages) {
+      pageActuelle++;
+      actualiserTableau();
+    }
+  });
+
+  pagination.appendChild(suivant);
+}
+
+function actualiserStatistiques() {
+  const total = etudiants.length;
+
+  const admis = etudiants.filter(
+    (etudiant) => Number(etudiant.note) >= 10
+  ).length;
+
+
+  const somme = etudiants.reduce(
+    (totalNotes, etudiant) => totalNotes + Number(etudiant.note),
+    0
   );
-  pagination.innerHTML = boutons.join("");
+
+
+  const moyenne = total > 0 ? somme / total : 0;
+
+
+  const taux = total > 0 ? (admis / total) * 100 : 0;
+
+  const meilleur = etudiants.reduce((meilleurActuel, etudiant) => {
+    if (!meilleurActuel || Number(etudiant.note) > Number(meilleurActuel.note)) {
+      return etudiant;
+    }
+
+    return meilleurActuel;
+  }, null);
+
+  document.getElementById("totalEtudiants").textContent = total;
+
+  document.getElementById("moyenneGenerale").textContent =
+    moyenne.toFixed(2) + " / 20";
+
+  document.getElementById("totalAdmis").textContent = admis;
+
+  document.getElementById("tauxReussite").textContent =
+    taux.toFixed(1) + " %";
+
+  document.getElementById("meilleurEtudiant").textContent =
+    meilleur ? meilleur.prenom + " " + meilleur.nom : "-";
+
+  document.getElementById("meilleureNote").textContent =
+    meilleur ? Number(meilleur.note).toFixed(2) + " / 20" : "";
+
+
+  document.getElementById("legAdmis").textContent = admis;
+  document.getElementById("legEchec").textContent = total - admis;
+
+  document.getElementById("donutPct").textContent =
+    taux.toFixed(0) + " %";
+
+  document.getElementById("graphDonut").style.setProperty("--pct", taux);
+
+  actualiserGraphiqueClasses();
+  actualiserGraphiqueNotes();
 }
 
-pagination.addEventListener("click", (e) => {
-  const bouton = e.target.closest("button[data-page]");
-  if (!bouton || bouton.disabled) return;
-  pageCourante = Number(bouton.dataset.page);
-  afficher();
-  document.querySelector(".tableau").scrollIntoView({ behavior: "smooth", block: "start" });
-});
 
-function afficherTableau() {
-  const liste = etudiantsFiltres();
-  const parPage = Number(taillePage.value) || 10;
-  const totalPages = Math.max(1, Math.ceil(liste.length / parPage));
-  if (pageCourante > totalPages) pageCourante = totalPages;
-  if (pageCourante < 1) pageCourante = 1;
+function actualiserGraphiqueClasses() {
+  const zone = document.getElementById("graphClasses");
+  zone.innerHTML = "";
 
-  const debut = (pageCourante - 1) * parPage;
-  const page = liste.slice(debut, debut + parPage);
-  const terme = champRecherche.value.trim();
+  const classes = ["L1", "L2", "L3", "M1", "M2"];
 
-  listeEtudiants.innerHTML = page
-    .map((e, i) => {
-      const admis = estAdmis(e.note);
-      return `
-      <tr>
-        <td>${debut + i + 1}</td>
-        <td>${surligner(e.nom, terme)}</td>
-        <td>${surligner(e.prenom, terme)}</td>
-        <td>${surligner(e.email, terme)}</td>
-        <td>${surligner(e.classe, terme)}</td>
-        <td>${formaterNote(e.note)} / 20</td>
-        <td><span class="${admis ? "admis" : "echec"}">${admis ? "Admis" : "Ajourné"}</span></td>
-        <td>
-          <div class="cellule-actions">
-            <button type="button" class="btn-modifier" data-action="modifier" data-id="${echapper(e.id)}" title="Modifier" aria-label="Modifier ${echapper(e.prenom)} ${echapper(e.nom)}"><i class="fa-solid fa-pen"></i></button>
-            <button type="button" class="btn-supprimer" data-action="supprimer" data-id="${echapper(e.id)}" title="Supprimer" aria-label="Supprimer ${echapper(e.prenom)} ${echapper(e.nom)}"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        </td>
-      </tr>`;
-    })
-    .join("");
+  classes.forEach((classe) => {
+    const nombre = etudiants.filter(
+      (etudiant) => etudiant.classe === classe
+    ).length;
 
-  // Messages
-  if (!etudiants.length) {
-    aucunEtudiant.textContent = "Aucun étudiant enregistré.";
-    aucunEtudiant.hidden = false;
-  } else if (!liste.length) {
-    aucunEtudiant.textContent = "Aucun étudiant ne correspond à votre recherche.";
-    aucunEtudiant.hidden = false;
-  } else {
-    aucunEtudiant.hidden = true;
+    const ligne = document.createElement("div");
+    ligne.className = "barre-ligne";
+
+    ligne.innerHTML = `
+      <span>${classe}</span>
+      <div class="barre-piste">
+        <div class="barre-remplie"
+          style="width: ${etudiants.length ? nombre / etudiants.length * 100 : 0}%">
+        </div>
+      </div>
+      <span class="barre-valeur">${nombre}</span>
+    `;
+
+    zone.appendChild(ligne);
+  });
+
+  if (etudiants.length === 0) {
+    zone.innerHTML = '<p class="vide-graphique">Aucune donnée disponible.</p>';
   }
+}
 
-  if (liste.length) {
-    compteurResultats.textContent =
-      `${liste.length} étudiant${liste.length > 1 ? "s" : ""}` +
-      (liste.length !== etudiants.length ? ` sur ${etudiants.length}` : "") +
-      ` — affichage ${debut + 1} à ${debut + page.length}`;
-  } else {
-    compteurResultats.textContent = "Consultez et gérez les inscriptions.";
+
+function actualiserGraphiqueNotes() {
+  const zone = document.getElementById("graphNotes");
+  zone.innerHTML = "";
+
+  const tranches = [
+    { nom: "0–4", min: 0, max: 5 },
+    { nom: "5–9", min: 5, max: 10 },
+    { nom: "10–14", min: 10, max: 15 },
+    { nom: "15–20", min: 15, max: 20.01 }
+  ];
+
+  tranches.forEach((tranche) => {
+    const nombre = etudiants.filter((etudiant) => {
+      const note = Number(etudiant.note);
+      return note >= tranche.min && note < tranche.max;
+    }).length;
+
+    const pourcentage = etudiants.length
+      ? (nombre / etudiants.length) * 100
+      : 0;
+
+    const ligne = document.createElement("div");
+    ligne.className = "barre-ligne";
+
+    ligne.innerHTML = `
+      <span>${tranche.nom}</span>
+      <div class="barre-piste">
+        <div class="barre-remplie" style="width: ${pourcentage}%"></div>
+      </div>
+      <span class="barre-valeur">${nombre}</span>
+    `;
+
+    zone.appendChild(ligne);
+  });
+
+  if (etudiants.length === 0) {
+    zone.innerHTML = '<p class="vide-graphique">Aucune donnée disponible.</p>';
   }
-
-  afficherPagination(totalPages);
 }
 
-listeEtudiants.addEventListener("click", (e) => {
-  const bouton = e.target.closest("button[data-action]");
-  if (!bouton) return;
-  if (bouton.dataset.action === "modifier") ouvrirEdition(bouton.dataset.id);
-  if (bouton.dataset.action === "supprimer") demanderSuppression(bouton.dataset.id);
-});
-
-function afficher() {
-  afficherStatistiques();
-  afficherGraphiques();
-  afficherTableau();
+function actualiserApplication() {
+  actualiserStatistiques();
+  actualiserTableau();
 }
 
-/* =====================================================
-   EXPORTS
-   ===================================================== */
-function lignesExport() {
-  return etudiantsFiltres().map((e, i) => ({
-    "#": i + 1,
-    Nom: e.nom,
-    Prénom: e.prenom,
-    Email: e.email,
-    Classe: e.classe,
-    Note: e.note,
-    Résultat: estAdmis(e.note) ? "Admis" : "Ajourné",
+function obtenirDonneesExport() {
+  return etudiants.map((etudiant) => ({
+    Nom: etudiant.nom,
+    Prenom: etudiant.prenom,
+    Email: etudiant.email,
+    Classe: etudiant.classe,
+    Note: Number(etudiant.note),
+    Resultat: obtenirResultat(etudiant.note)
   }));
 }
 
-function dateFichier() {
-  return new Date().toISOString().slice(0, 10);
-}
 
-function telecharger(blob, nom) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = nom;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+function exporterCSV() {
+  const donnees = obtenirDonneesExport();
 
-$("btnExportExcel").addEventListener("click", () => {
-  const lignes = lignesExport();
-  if (!lignes.length) {
+  if (donnees.length === 0) {
     afficherToast("Aucun étudiant à exporter.", true);
     return;
   }
-  if (typeof XLSX === "undefined") {
-    afficherToast("La bibliothèque Excel n'a pas pu être chargée.", true);
-    return;
-  }
-  const feuille = XLSX.utils.json_to_sheet(lignes);
-  feuille["!cols"] = [{ wch: 4 }, { wch: 18 }, { wch: 18 }, { wch: 30 }, { wch: 8 }, { wch: 8 }, { wch: 10 }];
-  const classeur = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(classeur, feuille, "Étudiants");
-  XLSX.writeFile(classeur, `etudiants_${dateFichier()}.xlsx`);
-  afficherToast("Export Excel terminé.");
-});
 
-function celluleCSV(valeur) {
-  let texte = String(valeur ?? "");
-  // Protection contre l'injection de formules dans Excel
-  if (/^[=+\-@\t\r]/.test(texte) && Number.isNaN(Number(texte))) texte = "'" + texte;
-  return /[";\n\r]/.test(texte) ? `"${texte.replace(/"/g, '""')}"` : texte;
-}
+  const colonnes = Object.keys(donnees[0]);
 
-$("btnExportCSV").addEventListener("click", () => {
-  const lignes = lignesExport();
-  if (!lignes.length) {
-    afficherToast("Aucun étudiant à exporter.", true);
-    return;
-  }
-  const entetes = ["Nom", "Prénom", "Email", "Classe", "Note", "Résultat"];
-  const contenu = [
-    entetes.join(";"),
-    ...lignes.map((l) => entetes.map((h) => celluleCSV(l[h])).join(";")),
-  ].join("\r\n");
-
-  // BOM UTF-8 pour que Excel affiche correctement les accents
-  telecharger(
-    new Blob(["\uFEFF" + contenu], { type: "text/csv;charset=utf-8;" }),
-    `etudiants_${dateFichier()}.csv`,
-  );
-  afficherToast("Export CSV terminé.");
-});
-
-/* =====================================================
-   IMPORT CSV
-   ===================================================== */
-function detecterSeparateur(texte) {
-  const premiere = texte.split(/\r?\n/)[0] || "";
-  const compte = (c) => premiere.split(c).length - 1;
-  const choix = [";", ",", "\t"].map((c) => [c, compte(c)]).sort((a, b) => b[1] - a[1]);
-  return choix[0][1] > 0 ? choix[0][0] : ";";
-}
-
-function analyserCSV(texte, sep) {
-  const lignes = [];
-  let ligne = [];
-  let champ = "";
-  let entreGuillemets = false;
-
-  for (let i = 0; i < texte.length; i++) {
-    const c = texte[i];
-    if (entreGuillemets) {
-      if (c === '"' && texte[i + 1] === '"') {
-        champ += '"';
-        i++;
-      } else if (c === '"') {
-        entreGuillemets = false;
-      } else {
-        champ += c;
-      }
-    } else if (c === '"') {
-      entreGuillemets = true;
-    } else if (c === sep) {
-      ligne.push(champ);
-      champ = "";
-    } else if (c === "\n" || c === "\r") {
-      if (c === "\r" && texte[i + 1] === "\n") i++;
-      ligne.push(champ);
-      lignes.push(ligne);
-      ligne = [];
-      champ = "";
-    } else {
-      champ += c;
-    }
-  }
-  if (champ !== "" || ligne.length) {
-    ligne.push(champ);
-    lignes.push(ligne);
-  }
-  return lignes.filter((l) => l.some((c) => c.trim() !== ""));
-}
-
-function normaliserClasse(valeur) {
-  const v = normaliser(valeur).replace(/\s+/g, "").toUpperCase();
-  if (CLASSES.includes(v)) return v;
-  const m = v.match(/^(LICENCE|MASTER)(\d)/);
-  if (m) {
-    const code = (m[1] === "LICENCE" ? "L" : "M") + m[2];
-    if (CLASSES.includes(code)) return code;
-  }
-  return null;
-}
-
-function importerCSV(texte) {
-  texte = texte.replace(/^\uFEFF/, "");
-  const lignes = analyserCSV(texte, detecterSeparateur(texte));
-  if (!lignes.length) {
-    afficherToast("Le fichier est vide.", true);
-    return;
+  function formaterCSV(valeur) {
+    return '"' + String(valeur).replace(/"/g, '""') + '"';
   }
 
-  // Détection de l'en-tête
-  const entete = lignes[0].map((c) => normaliser(c));
-  const aEntete = entete.includes("email") || entete.includes("nom");
-  const colonnes = { nom: 0, prenom: 1, email: 2, classe: 3, note: 4 };
-  if (aEntete) {
-    Object.keys(colonnes).forEach((k) => {
-      const idx = entete.indexOf(k);
-      colonnes[k] = idx;
-    });
-    if (Object.values(colonnes).some((i) => i === -1)) {
-      afficherToast("Colonnes attendues : Nom, Prénom, Email, Classe, Note.", true);
-      return;
-    }
-  }
+  const lignes = [
+    colonnes.map(formaterCSV).join(";"),
+    ...donnees.map((etudiant) =>
+      colonnes.map((colonne) => formaterCSV(etudiant[colonne])).join(";")
+    )
+  ];
 
-  const donnees = aEntete ? lignes.slice(1) : lignes;
-  let ajoutes = 0;
-  let doublons = 0;
-  let invalides = 0;
-  const emailsConnus = new Set(etudiants.map((e) => e.email.toLowerCase()));
-
-  donnees.forEach((cols) => {
-    const classe = normaliserClasse(cols[colonnes.classe] || "");
-    const note = parseFloat(String(cols[colonnes.note] || "").replace(",", "."));
-    const item = {
-      nom: (cols[colonnes.nom] || "").trim(),
-      prenom: (cols[colonnes.prenom] || "").trim(),
-      email: (cols[colonnes.email] || "").trim(),
-      classe,
-      note,
-    };
-
-    if (
-      item.nom.length < 2 ||
-      item.prenom.length < 2 ||
-      !emailValide(item.email) ||
-      !classe ||
-      Number.isNaN(note) ||
-      note < 0 ||
-      note > 20
-    ) {
-      invalides++;
-      return;
-    }
-    if (emailsConnus.has(item.email.toLowerCase())) {
-      doublons++;
-      return;
-    }
-    emailsConnus.add(item.email.toLowerCase());
-    etudiants.push({ id: nouvelId(), ...item, creeLe: Date.now() + ajoutes });
-    ajoutes++;
+  const contenu = "\uFEFF" + lignes.join("\r\n");
+  const fichier = new Blob([contenu], {
+    type: "text/csv;charset=utf-8;"
   });
 
-  if (ajoutes) {
-    sauvegarder();
-    pageCourante = 1;
-    afficher();
+  const url = URL.createObjectURL(fichier);
+  const lien = document.createElement("a");
+
+  lien.href = url;
+  lien.download = "etudiants.csv";
+  lien.click();
+
+  URL.revokeObjectURL(url);
+  afficherToast("Export CSV terminé.");
+}
+
+function exporterExcel() {
+  const donnees = obtenirDonneesExport();
+
+  if (donnees.length === 0) {
+    afficherToast("Aucun étudiant à exporter.", true);
+    return;
   }
 
-  const details = [];
-  if (doublons) details.push(`${doublons} doublon${doublons > 1 ? "s" : ""} ignoré${doublons > 1 ? "s" : ""}`);
-  if (invalides) details.push(`${invalides} ligne${invalides > 1 ? "s" : ""} invalide${invalides > 1 ? "s" : ""}`);
-  afficherToast(
-    `${ajoutes} étudiant${ajoutes > 1 ? "s" : ""} importé${ajoutes > 1 ? "s" : ""}` +
-      (details.length ? ` (${details.join(", ")})` : "") +
-      ".",
-    ajoutes === 0,
+  if (typeof XLSX === "undefined") {
+    afficherToast("La bibliothèque Excel n'est pas chargée.", true);
+    return;
+  }
+
+  const feuille = XLSX.utils.json_to_sheet(donnees);
+  const classeur = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(classeur, feuille, "Étudiants");
+  XLSX.writeFile(classeur, "etudiants.xlsx");
+
+  afficherToast("Export Excel terminé.");
+}
+
+
+document.getElementById("btnExportCSV")
+  .addEventListener("click", exporterCSV);
+
+document.getElementById("btnExportExcel")
+  .addEventListener("click", exporterExcel);
+
+
+document.getElementById("btnImportCSV")
+  .addEventListener("click", function () {
+    document.getElementById("fichierCSV").click();
+  });
+
+function lireCSV(texte) {
+  const lignes = [];
+  let ligne = [];
+  let valeur = "";
+  let entreGuillemets = false;
+
+  
+  for (let i = 0; i < texte.length; i++) {
+    const caractere = texte[i];
+    const suivant = texte[i + 1];
+
+    if (caractere === '"' && entreGuillemets && suivant === '"') {
+      valeur += '"';
+      i++;
+    } else if (caractere === '"') {
+      entreGuillemets = !entreGuillemets;
+    } else if ((caractere === ";" || caractere === ",") && !entreGuillemets) {
+      ligne.push(valeur);
+      valeur = "";
+    } else if ((caractere === "\n" || caractere === "\r") && !entreGuillemets) {
+      if (caractere === "\r" && suivant === "\n") i++;
+
+      ligne.push(valeur);
+
+      if (ligne.some((cellule) => cellule.trim() !== "")) {
+        lignes.push(ligne);
+      }
+
+      ligne = [];
+      valeur = "";
+    } else {
+      valeur += caractere;
+    }
+  }
+
+  if (valeur !== "" || ligne.length > 0) {
+    ligne.push(valeur);
+    lignes.push(ligne);
+  }
+
+  return lignes;
+}
+
+document.getElementById("fichierCSV")
+  .addEventListener("change", async function () {
+    const fichier = this.files[0];
+
+    if (!fichier) return;
+
+    try {
+      const texte = (await fichier.text()).replace(/^\uFEFF/, "");
+      const lignes = lireCSV(texte);
+
+      if (lignes.length < 2) {
+        afficherToast("Le fichier CSV est vide.", true);
+        return;
+      }
+
+      const entetes = lignes[0].map((nom) =>
+        nom.trim().toLowerCase().normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+      );
+
+      const colonnesNecessaires = ["nom", "prenom", "email", "classe", "note"];
+
+      if (!colonnesNecessaires.every((colonne) => entetes.includes(colonne))) {
+        afficherToast("Les colonnes du fichier CSV sont incorrectes.", true);
+        return;
+      }
+
+      const nouveauxEtudiants = [];
+      const emails = new Set(etudiants.map(
+        (etudiant) => etudiant.email.toLowerCase()
+      ));
+
+      let ignores = 0;
+
+      lignes.slice(1).forEach((ligne) => {
+        const obtenir = (nomColonne) =>
+          ligne[entetes.indexOf(nomColonne)]?.trim() || "";
+
+        const nom = obtenir("nom");
+        const prenom = obtenir("prenom");
+        const email = obtenir("email");
+        const classe = obtenir("classe").toUpperCase();
+        const note = obtenir("note").replace(",", ".");
+
+        const erreur = validerEtudiant(
+          nom, prenom, email, note, [...etudiants, ...nouveauxEtudiants]
+        );
+
+        if (
+          erreur ||
+          !["L1", "L2", "L3", "M1", "M2"].includes(classe) ||
+          emails.has(email.toLowerCase())
+        ) {
+          ignores++;
+          return;
+        }
+
+        nouveauxEtudiants.push({
+          id: Date.now() + nouveauxEtudiants.length,
+          nom,
+          prenom,
+          email,
+          classe,
+          note: Number(note)
+        });
+
+        emails.add(email.toLowerCase());
+      });
+
+      if (nouveauxEtudiants.length === 0) {
+        afficherToast("Aucun nouvel étudiant valide à importer.", true);
+        return;
+      }
+
+      const anciensEtudiants = etudiants;
+      etudiants = [...etudiants, ...nouveauxEtudiants];
+
+      if (!sauvegarder()) {
+        etudiants = anciensEtudiants;
+        return;
+      }
+
+      pageActuelle = 1;
+      actualiserApplication();
+
+      afficherToast(
+        `${nouveauxEtudiants.length} étudiant(s) importé(s), ${ignores} ignoré(s).`
+      );
+    } catch (erreur) {
+      afficherToast("Impossible de lire ce fichier CSV.", true);
+    } finally {
+      this.value = "";
+    }
+  });
+
+const btnTheme = document.getElementById("btnTheme");
+const iconeTheme = btnTheme.querySelector("i");
+
+try {
+  if (localStorage.getItem("themeUNCHK") === "sombre") {
+    document.body.classList.add("sombre");
+  }
+} catch (erreur) {
+
+}
+
+function actualiserIconeTheme() {
+  const modeSombre = document.body.classList.contains("sombre");
+
+  iconeTheme.className = modeSombre
+    ? "fa-solid fa-sun"
+    : "fa-solid fa-moon";
+
+  btnTheme.title = modeSombre
+    ? "Passer en mode clair"
+    : "Passer en mode sombre";
+
+  btnTheme.setAttribute(
+    "aria-label",
+    modeSombre ? "Passer en mode clair" : "Passer en mode sombre"
   );
 }
 
-$("btnImportCSV").addEventListener("click", () => $("fichierCSV").click());
+btnTheme.addEventListener("click", function () {
+  document.body.classList.toggle("sombre");
 
-$("fichierCSV").addEventListener("change", (e) => {
-  const fichier = e.target.files[0];
-  if (!fichier) return;
-  if (!/\.csv$/i.test(fichier.name) && fichier.type !== "text/csv") {
-    afficherToast("Veuillez choisir un fichier .csv.", true);
-    e.target.value = "";
-    return;
+  const mode = document.body.classList.contains("sombre")
+    ? "sombre"
+    : "clair";
+
+  try {
+    localStorage.setItem("themeUNCHK", mode);
+  } catch (erreur) {
+   
   }
-  const lecteur = new FileReader();
-  lecteur.onload = () => importerCSV(String(lecteur.result));
-  lecteur.onerror = () => afficherToast("Lecture du fichier impossible.", true);
-  lecteur.readAsText(fichier, "UTF-8");
-  e.target.value = ""; // permet de réimporter le même fichier
+
+  actualiserIconeTheme();
 });
 
-/* =====================================================
-   MODE SOMBRE
-   ===================================================== */
-function appliquerTheme(sombre) {
-  document.body.classList.toggle("sombre", sombre);
-  $("btnTheme").innerHTML = sombre
-    ? '<i class="fa-solid fa-sun"></i>'
-    : '<i class="fa-solid fa-moon"></i>';
-}
+actualiserIconeTheme();
 
-function themeInitial() {
-  try {
-    const enregistre = localStorage.getItem(CLE_THEME);
-    if (enregistre) return enregistre === "sombre";
-  } catch {
-    /* ignoré */
-  }
-  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-$("btnTheme").addEventListener("click", () => {
-  const sombre = !document.body.classList.contains("sombre");
-  appliquerTheme(sombre);
-  try {
-    localStorage.setItem(CLE_THEME, sombre ? "sombre" : "clair");
-  } catch {
-    /* ignoré */
-  }
+formulaire.addEventListener("reset", function () {
+  effacerMessages();
 });
 
-/* =====================================================
-   DÉMARRAGE
-   ===================================================== */
-appliquerTheme(themeInitial());
-afficher();
+actualiserApplication();
+
+

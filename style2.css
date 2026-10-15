@@ -5,7 +5,6 @@
 }
 
 body {
-  /* font-family: "Poppins", sans-serif; */
   background-color: #f7f5fb;
   color: #292235;
   line-height: 1.6;
@@ -360,11 +359,6 @@ footer p {
   border-color: #8e44ad;
 }
 
-/* =====================================================
-   NOUVEAUTÉS
-   ===================================================== */
-
-/* Boutons d'export / import */
 .boutons-export {
   display: flex;
   flex-wrap: wrap;
@@ -378,7 +372,6 @@ footer p {
   background: #0f766e;
 }
 
-/* Bouton mode sombre */
 .btn-theme {
   position: absolute;
   top: 18px;
@@ -401,7 +394,6 @@ header .container {
   z-index: 1;
 }
 
-/* Graphiques */
 .graphiques {
   background: white;
   padding: 30px;
@@ -509,7 +501,6 @@ header .container {
   background: #f87171;
 }
 
-/* Pagination */
 .pagination {
   display: flex;
   flex-wrap: wrap;
@@ -536,7 +527,6 @@ header .container {
   transform: none;
 }
 
-/* Surlignage de la recherche */
 mark {
   background: #fde68a;
   color: inherit;
@@ -544,13 +534,11 @@ mark {
   padding: 0 2px;
 }
 
-/* Cellule actions */
 td .cellule-actions {
   display: flex;
   gap: 6px;
 }
 
-/* Modales */
 .modal {
   position: fixed;
   inset: 0;
@@ -650,8 +638,6 @@ td .cellule-actions {
     opacity: 1;
   }
 }
-
-/* Notification */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -678,16 +664,12 @@ td .cellule-actions {
   background: #b91c1c;
 }
 
-/* Champ invalide */
 .champ input.invalide,
 .champ select.invalide {
   border-color: #dc2626;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
 }
 
-/* =====================================================
-   MODE SOMBRE
-   ===================================================== */
 body.sombre {
   background-color: #14101c;
   color: #e9e4f2;
@@ -787,9 +769,6 @@ body.sombre footer {
   background: #231335;
 }
 
-/* =====================================================
-   RESPONSIVE
-   ===================================================== */
 @media screen and (max-width: 1024px) {
   .container {
     width: 94%;
