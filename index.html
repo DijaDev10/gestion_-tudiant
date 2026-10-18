@@ -1,334 +1,5 @@
 <!doctype html>
 <html lang="fr">
-<<<<<<< HEAD
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestion des étudiants</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-  <link rel="stylesheet" href="style2.css" />
-</head>
-
-<body>
-  <header>
-    <button type="button" id="btnTheme" class="btn-theme" aria-label="Basculer le mode sombre"
-      title="Mode sombre / clair">
-      <i class="fa-solid fa-moon"></i>
-    </button>
-    <div class="container">
-      <p class="le">ESPACE ADMINISTRATION</p>
-      <h1>
-        Gestion des étudiants UNCHK<i class="fa-solid fa-graduation-cap"></i>
-      </h1>
-      <p>Gérez les inscriptions et suivez les résultats.</p>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="statistiques">
-      <div class="carte-statistique">
-        <h3>Total étudiants</h3>
-        <p id="totalEtudiants">0</p>
-      </div>
-
-      <div class="carte-statistique">
-        <h3>Moyenne générale</h3>
-        <p id="moyenneGenerale">0</p>
-      </div>
-
-      <div class="carte-statistique">
-        <h3>Etudiants admis</h3>
-        <p id="totalAdmis">0</p>
-      </div>
-
-      <div class="carte-statistique">
-        <h3>Taux de réussite</h3>
-        <p id="tauxReussite">0 %</p>
-      </div>
-
-      <div class="carte-statistique">
-        <h3>Meilleur étudiant</h3>
-        <p id="meilleurEtudiant" class="texte-meilleur">aucun étudiant</p>
-        <small id="meilleureNote"></small>
-      </div>
-    </section>
-
-    <section class="graphiques">
-      <h2>Statistiques graphiques</h2>
-      <div class="grille-graphiques">
-        <div class="bloc-graphique">
-          <h3>Étudiants par classe</h3>
-          <div id="graphClasses" class="barres"></div>
-        </div>
-
-        <div class="bloc-graphique">
-          <h3>Admis / Ajournés</h3>
-          <div class="donut-zone">
-            <div id="graphDonut" class="donut donut-vide">
-              <span id="donutPct">0 %</span>
-            </div>
-            <ul class="legende">
-              <li>
-                <span class="pastille pastille-admis"></span>Admis :
-                <b id="legAdmis">0</b>
-              </li>
-              <li>
-                <span class="pastille pastille-echec"></span>Echec :
-                <b id="legEchec">0</b>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="bloc-graphique">
-          <h3>Répartition des notes</h3>
-          <div id="graphNotes" class="barres"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="formulaire">
-      <h2 id="titreFormulaire">Ajouter un étudiant</h2>
-
-      <form id="formulaireEtudiant" novalidate>
-        <div class="champ">
-          <label for="nom">Nom</label>
-          <input type="text" id="nom" placeholder="Ex : Ndiaye" required />
-          <small class="erreur-champ"></small>
-        </div>
-
-        <div class="champ">
-          <label for="prenom">Prénom</label>
-          <input type="text" id="prenom" placeholder="Ex : Khady" required />
-          <small class="erreur-champ"></small>
-        </div>
-
-        <div class="champ">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="Ex : khady@gmail.com" required />
-          <small class="erreur-champ"></small>
-        </div>
-
-        <div class="champ">
-          <label for="classe">Classe</label>
-          <select name="classe" id="classe">
-            <option value="L1">Licence 1</option>
-            <option value="L2">Licence 2</option>
-            <option value="L3">Licence 3</option>
-            <option value="M1">Master 1</option>
-            <option value="M2">Master 2</option>
-          </select>
-          <small class="erreur-champ"></small>
-        </div>
-
-        <div class="champ">
-          <label for="note">Note sur 20</label>
-          <input type="number" id="note" placeholder="Ex : 15" min="0" max="20" step="0.01" required />
-          <small class="erreur-champ"></small>
-        </div>
-
-        <div class="actions-formulaire">
-          <button type="submit" id="btnEnregistrer">
-            <i class="fa-solid fa-plus"></i> Ajouter l'étudiant
-          </button>
-          <button type="reset" id="btnAnnuler" class="btn-annuler">
-            Réinitialiser
-          </button>
-        </div>
-      </form>
-
-      <p id="messageErreur" class="erreur"></p>
-      <p id="messageSucces" class="succes"></p>
-    </section>
-
-    <section class="recherche">
-      <h2>Rechercher un étudiant</h2>
-      <input type="search" id="recherche" placeholder="🔎 Rechercher par nom, prénom, email ou classe..." />
-      <div class="outils">
-        <div class="champ">
-          <label for="filtreClasse">Filtrer par classe</label>
-          <select id="filtreClasse">
-            <option value="">Toutes les classes</option>
-            <option value="L1">Licence 1</option>
-            <option value="L2">Licence 2</option>
-            <option value="L3">Licence 3</option>
-            <option value="M1">Master 1</option>
-            <option value="M2">Master 2</option>
-          </select>
-        </div>
-
-        <div class="champ">
-          <label for="filtreResultat">Filtrer par résultat</label>
-          <select id="filtreResultat">
-            <option value="">Tous les résultats</option>
-            <option value="admis">Admis</option>
-            <option value="echec">Ajourné</option>
-          </select>
-        </div>
-
-        <div class="champ">
-          <label for="triEtudiants">Trier par</label>
-          <select id="triEtudiants">
-            <option value="recent">Ajoutés récemment</option>
-            <option value="nom-az">Nom (A → Z)</option>
-            <option value="nom-za">Nom (Z → A)</option>
-            <option value="note-desc">Note (meilleure d'abord)</option>
-            <option value="note-asc">Note (plus faible d'abord)</option>
-            <option value="classe">Classe</option>
-          </select>
-        </div>
-
-        <div class="champ">
-          <label for="taillePage">Par page</label>
-          <select id="taillePage">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="boutons-export">
-        <button type="button" id="btnExportExcel">
-          <i class="fa-solid fa-file-excel"></i> Exporter Excel
-        </button>
-        <button type="button" id="btnExportCSV">
-          <i class="fa-solid fa-file-csv"></i> Exporter CSV
-        </button>
-        <button type="button" id="btnImportCSV" class="btn-secondaire">
-          <i class="fa-solid fa-file-import"></i> Importer CSV
-        </button>
-        <input type="file" id="fichierCSV" accept=".csv,text/csv" hidden />
-        <button type="button" id="btnReinitFiltres" class="btn-annuler">
-          <i class="fa-solid fa-rotate-left"></i> Réinitialiser les filtres
-        </button>
-      </div>
-    </section>
-
-    <section class="tableau">
-      <h2>Liste des étudiants</h2>
-      <p id="compteurResultats">Consultez et gérez les inscriptions.</p>
-
-      <div class="tableau2">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Nom</th>
-              <th>Prénom</th>
-              <th>Email</th>
-              <th>Classe</th>
-              <th>Note</th>
-              <th>Résultat</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody id="listeEtudiants"></tbody>
-        </table>
-      </div>
-
-      <p id="aucunEtudiant" class="aucun-etudiant">
-        Aucun étudiant enregistré.
-      </p>
-
-      <nav class="pagination" id="pagination" aria-label="Pagination"></nav>
-    </section>
-  </main>
-
-  <footer>
-    <p>
-      <i class="fa-regular fa-copyright"></i> 2026 - Application de gestion
-      des étudiants
-    </p>
-  </footer>
-
-  <div id="modalEdition" class="modal" hidden>
-    <div class="modal-boite" role="dialog" aria-modal="true" aria-labelledby="titreModal">
-      <div class="modal-entete">
-        <h2 id="titreModal">Modifier l'étudiant</h2>
-        <button type="button" class="modal-fermer" data-fermer aria-label="Fermer">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <form id="formulaireEdition" class="form-modal" novalidate>
-        <div class="champ">
-          <label for="editNom">Nom</label>
-          <input type="text" id="editNom" required />
-          <small class="erreur-champ"></small>
-        </div>
-        <div class="champ">
-          <label for="editPrenom">Prénom</label>
-          <input type="text" id="editPrenom" required />
-          <small class="erreur-champ"></small>
-        </div>
-        <div class="champ">
-          <label for="editEmail">Email</label>
-          <input type="email" id="editEmail" required />
-          <small class="erreur-champ"></small>
-        </div>
-        <div class="champ">
-          <label for="editClasse">Classe</label>
-          <select id="editClasse">
-            <option value="L1">Licence 1</option>
-            <option value="L2">Licence 2</option>
-            <option value="L3">Licence 3</option>
-            <option value="M1">Master 1</option>
-            <option value="M2">Master 2</option>
-          </select>
-          <small class="erreur-champ"></small>
-        </div>
-        <div class="champ">
-          <label for="editNote">Note sur 20</label>
-          <input type="number" id="editNote" min="0" max="20" step="0.01" required />
-          <small class="erreur-champ"></small>
-        </div>
-
-        <p id="erreurEdition" class="erreur colonne-pleine"></p>
-
-        <div class="actions-formulaire">
-          <button type="submit">
-            <i class="fa-solid fa-floppy-disk"></i> Enregistrer
-          </button>
-          <button type="button" class="btn-annuler" data-fermer>
-            Annuler
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div id="modalConfirmation" class="modal" hidden>
-    <div class="modal-boite modal-petite" role="alertdialog" aria-modal="true" aria-labelledby="titreConfirm">
-      <div class="icone-alerte">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h2 id="titreConfirm">Supprimer cet étudiant ?</h2>
-      <p id="texteConfirm">Cette action est irréversible.</p>
-      <div class="actions-confirm">
-        <button type="button" id="btnConfirmerSuppression" class="btn-supprimer">
-          <i class="fa-solid fa-trash"></i> Oui, supprimer
-        </button>
-        <button type="button" id="btnAnnulerSuppression" class="btn-annuler">
-          Annuler
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="script2.js"></script>
-</body>
-
-</html>
-=======
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -339,7 +10,7 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <link rel="stylesheet" href="style2.css" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header>
@@ -379,7 +50,7 @@
 
         <div class="carte-statistique">
           <h3>Meilleur étudiant</h3>
-          <p id="meilleurEtudiant" class="texte-meilleur">-</p>
+          <p id="meilleurEtudiant" class="texte-meilleur">aucun étudiant</p>
           <small id="meilleureNote"></small>
         </div>
       </section>
@@ -395,7 +66,7 @@
           <div class="bloc-graphique">
             <h3>Admis / Ajournés</h3>
             <div class="donut-zone">
-              <div id="graphDonut" class="donut">
+              <div id="graphDonut" class="donut donut-vide">
                 <span id="donutPct">0 %</span>
               </div>
               <ul class="legende">
@@ -425,11 +96,13 @@
           <div class="champ">
             <label for="nom">Nom</label>
             <input type="text" id="nom" placeholder="Ex : Ndiaye" required />
+            <small class="erreur-champ"></small>
           </div>
 
           <div class="champ">
             <label for="prenom">Prénom</label>
             <input type="text" id="prenom" placeholder="Ex : Khady" required />
+            <small class="erreur-champ"></small>
           </div>
 
           <div class="champ">
@@ -440,6 +113,7 @@
               placeholder="Ex : khady@gmail.com"
               required
             />
+            <small class="erreur-champ"></small>
           </div>
 
           <div class="champ">
@@ -451,6 +125,7 @@
               <option value="M1">Master 1</option>
               <option value="M2">Master 2</option>
             </select>
+            <small class="erreur-champ"></small>
           </div>
 
           <div class="champ">
@@ -464,6 +139,7 @@
               step="0.01"
               required
             />
+            <small class="erreur-champ"></small>
           </div>
 
           <div class="actions-formulaire">
@@ -610,14 +286,17 @@
           <div class="champ">
             <label for="editNom">Nom</label>
             <input type="text" id="editNom" required />
+            <small class="erreur-champ"></small>
           </div>
           <div class="champ">
             <label for="editPrenom">Prénom</label>
             <input type="text" id="editPrenom" required />
+            <small class="erreur-champ"></small>
           </div>
           <div class="champ">
             <label for="editEmail">Email</label>
             <input type="email" id="editEmail" required />
+            <small class="erreur-champ"></small>
           </div>
           <div class="champ">
             <label for="editClasse">Classe</label>
@@ -628,6 +307,7 @@
               <option value="M1">Master 1</option>
               <option value="M2">Master 2</option>
             </select>
+            <small class="erreur-champ"></small>
           </div>
           <div class="champ">
             <label for="editNote">Note sur 20</label>
@@ -639,6 +319,7 @@
               step="0.01"
               required
             />
+            <small class="erreur-champ"></small>
           </div>
 
           <p id="erreurEdition" class="erreur colonne-pleine"></p>
@@ -685,7 +366,6 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="script2.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
->>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
