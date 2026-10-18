@@ -27,6 +27,7 @@ const filtreResultat = document.getElementById("filtreResultat");
 const triEtudiants = document.getElementById("triEtudiants");
 const selectTaillePage = document.getElementById("taillePage");
 
+<<<<<<< HEAD
 const champNom = document.getElementById("nom");
 const champPrenom = document.getElementById("prenom");
 const champEmail = document.getElementById("email");
@@ -41,6 +42,8 @@ const editClasse = document.getElementById("editClasse");
 const editNote = document.getElementById("editNote");
 const champsEdition = [editNom, editPrenom, editEmail, editNote];
 
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
 function charger() {
   try {
@@ -48,6 +51,7 @@ function charger() {
       localStorage.getItem(CLE_STOCKAGE)
     );
 
+<<<<<<< HEAD
     if (!Array.isArray(donnees)) {
       return [];
     }
@@ -62,6 +66,9 @@ function charger() {
         typeof e.classe === "string" &&
         Number.isFinite(Number(e.note))
     );
+=======
+    return Array.isArray(donnees) ? donnees : [];
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   } catch {
     return [];
   }
@@ -117,6 +124,7 @@ function afficherSucces(message) {
   messageErreur.textContent = "";
 }
 
+<<<<<<< HEAD
 function definirErreurChamp(champ, message = "") {
   const conteneur = champ.closest(".champ");
   const zoneErreur = conteneur ? conteneur.querySelector(".erreur-champ") : null;
@@ -136,10 +144,13 @@ function definirErreurChamp(champ, message = "") {
   }
 }
 
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 function effacerMessages() {
   messageErreur.textContent = "";
   messageSucces.textContent = "";
   erreurEdition.textContent = "";
+<<<<<<< HEAD
   document.querySelectorAll(".erreur-champ").forEach((zone) => {
     zone.textContent = "";
   });
@@ -217,6 +228,18 @@ function validerEtudiant(nom, prenom, email, note, liste = etudiants, idIgnore =
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+=======
+}
+
+
+
+function validerEtudiant(nom, prenom, email, note, liste = etudiants, idIgnore = null) {
+  if (!nom.trim() || !prenom.trim() || !email.trim() || note === "") {
+    return "Tous les champs sont obligatoires.";
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
     return "Veuillez saisir une adresse email valide.";
   }
 
@@ -227,7 +250,11 @@ function validerEtudiant(nom, prenom, email, note, liste = etudiants, idIgnore =
   }
 
   const emailExiste = liste.some((etudiant) =>
+<<<<<<< HEAD
     etudiant.email.toLowerCase() === emailVal.toLowerCase()
+=======
+    etudiant.email.toLowerCase() === email.trim().toLowerCase()
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
     && etudiant.id !== idIgnore
   );
 
@@ -242,6 +269,7 @@ function validerEtudiant(nom, prenom, email, note, liste = etudiants, idIgnore =
 formulaire.addEventListener("submit", function (evenement) {
   evenement.preventDefault();
 
+<<<<<<< HEAD
   champsFormulaire.forEach((champ) => definirErreurChamp(champ, ""));
   messageErreur.textContent = "";
 
@@ -266,6 +294,18 @@ formulaire.addEventListener("submit", function (evenement) {
     if (premierInvalide) {
       premierInvalide.focus();
     }
+=======
+  const nom = document.getElementById("nom").value.trim();
+  const prenom = document.getElementById("prenom").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const classe = document.getElementById("classe").value;
+  const note = document.getElementById("note").value;
+
+  const erreur = validerEtudiant(nom, prenom, email, note);
+
+  if (erreur) {
+    afficherErreur(erreur);
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
     return;
   }
 
@@ -295,6 +335,7 @@ formulaire.addEventListener("submit", function (evenement) {
   actualiserApplication();
 });
 
+<<<<<<< HEAD
 champsFormulaire.forEach((champ) => {
   champ.addEventListener("input", function () {
     definirErreurChamp(this, "");
@@ -304,6 +345,8 @@ champsFormulaire.forEach((champ) => {
   });
 });
 
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
 function obtenirResultat(note) {
   if (Number(note) >= 10) {
@@ -366,13 +409,18 @@ function afficherEtudiants(liste) {
 
 
 function ouvrirEdition(id) {
+<<<<<<< HEAD
   const etudiant = etudiants.find((element) => String(element.id) === String(id));
+=======
+  const etudiant = etudiants.find((element) => element.id === id);
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
   if (!etudiant) {
     afficherToast("Étudiant introuvable.", true);
     return;
   }
 
+<<<<<<< HEAD
   idEtudiantAModifier = etudiant.id;
   champsEdition.forEach((champ) => definirErreurChamp(champ, ""));
 
@@ -381,11 +429,24 @@ function ouvrirEdition(id) {
   editEmail.value = etudiant.email;
   editClasse.value = etudiant.classe;
   editNote.value = etudiant.note;
+=======
+  idEtudiantAModifier = id;
+
+  document.getElementById("editNom").value = etudiant.nom;
+  document.getElementById("editPrenom").value = etudiant.prenom;
+  document.getElementById("editEmail").value = etudiant.email;
+  document.getElementById("editClasse").value = etudiant.classe;
+  document.getElementById("editNote").value = etudiant.note;
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
   erreurEdition.textContent = "";
   modalEdition.hidden = false;
 
+<<<<<<< HEAD
   editNom.focus();
+=======
+  document.getElementById("editNom").focus();
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 }
 
 
@@ -394,7 +455,11 @@ formulaireEdition.addEventListener("submit", function (evenement) {
   evenement.preventDefault();
 
   const etudiant = etudiants.find(
+<<<<<<< HEAD
     (element) => String(element.id) === String(idEtudiantAModifier)
+=======
+    (element) => element.id === idEtudiantAModifier
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   );
 
   if (!etudiant) {
@@ -402,6 +467,7 @@ formulaireEdition.addEventListener("submit", function (evenement) {
     return;
   }
 
+<<<<<<< HEAD
   champsEdition.forEach((champ) => definirErreurChamp(champ, ""));
   erreurEdition.textContent = "";
 
@@ -432,6 +498,24 @@ formulaireEdition.addEventListener("submit", function (evenement) {
   }
 
 
+=======
+  const nom = document.getElementById("editNom").value.trim();
+  const prenom = document.getElementById("editPrenom").value.trim();
+  const email = document.getElementById("editEmail").value.trim();
+  const classe = document.getElementById("editClasse").value;
+  const note = document.getElementById("editNote").value;
+
+  const erreur = validerEtudiant(
+    nom, prenom, email, note, etudiants, idEtudiantAModifier
+  );
+
+  if (erreur) {
+    erreurEdition.textContent = erreur;
+    return;
+  }
+
+  
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   const ancienneVersion = { ...etudiant };
 
   etudiant.nom = nom;
@@ -447,12 +531,16 @@ formulaireEdition.addEventListener("submit", function (evenement) {
 
   modalEdition.hidden = true;
   idEtudiantAModifier = null;
+<<<<<<< HEAD
   champsEdition.forEach((champ) => definirErreurChamp(champ, ""));
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
   afficherToast("Modification enregistrée.");
   actualiserApplication();
 });
 
+<<<<<<< HEAD
 champsEdition.forEach((champ) => {
   champ.addEventListener("input", function () {
     definirErreurChamp(this, "");
@@ -462,6 +550,8 @@ champsEdition.forEach((champ) => {
   });
 });
 
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 function ouvrirConfirmation(id) {
   const etudiant = etudiants.find(
     (element) => String(element.id) === String(id)
@@ -485,12 +575,37 @@ function ouvrirConfirmation(id) {
 
 
 
+<<<<<<< HEAD
+=======
+
+// function ouvrirConfirmation(id) {
+//   const etudiant = etudiants.find((element) => element.id === id);
+
+//   if (!etudiant) {
+//     afficherToast("Étudiant introuvable.", true);
+//     return;
+//   }
+
+//   idEtudiantASupprimer = id;
+
+//   document.getElementById("texteConfirm").textContent =
+//     `Voulez-vous supprimer ${etudiant.prenom} ${etudiant.nom} ?`;
+
+//   modalConfirmation.hidden = false;
+// }
+
+
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 document.getElementById("btnConfirmerSuppression")
   .addEventListener("click", function () {
     const index = etudiants.findIndex(
       (element) => element.id === idEtudiantASupprimer
     );
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
     if (index === -1) {
       modalConfirmation.hidden = true;
@@ -513,15 +628,22 @@ document.getElementById("btnConfirmerSuppression")
     afficherToast("Étudiant supprimé.");
     actualiserApplication();
   });
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
 
 document.querySelectorAll("[data-fermer]").forEach((bouton) => {
   bouton.addEventListener("click", function () {
     modalEdition.hidden = true;
     idEtudiantAModifier = null;
+<<<<<<< HEAD
     champsEdition.forEach((champ) => definirErreurChamp(champ, ""));
     erreurEdition.textContent = "";
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   });
 });
 
@@ -538,8 +660,11 @@ document.addEventListener("keydown", function (evenement) {
 
     idEtudiantAModifier = null;
     idEtudiantASupprimer = null;
+<<<<<<< HEAD
     champsEdition.forEach((champ) => definirErreurChamp(champ, ""));
     erreurEdition.textContent = "";
+=======
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   }
 });
 
@@ -550,6 +675,10 @@ listeEtudiants.addEventListener("click", function (evenement) {
     return;
   }
 
+<<<<<<< HEAD
+=======
+  // On conserve l'identifiant sous forme de chaîne.
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   const id = bouton.dataset.id;
 
   if (bouton.dataset.action === "modifier") {
@@ -563,6 +692,7 @@ listeEtudiants.addEventListener("click", function (evenement) {
 
 
 function obtenirEtudiantsFiltres() {
+<<<<<<< HEAD
 
   const texte = recherche.value.trim().toLowerCase();
 
@@ -571,6 +701,16 @@ function obtenirEtudiantsFiltres() {
   const resultatChoisi = filtreResultat.value;
 
 
+=======
+  
+  const texte = recherche.value.trim().toLowerCase();
+
+  
+  const classeChoisie = filtreClasse.value;
+  const resultatChoisi = filtreResultat.value;
+
+  
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   let resultat = etudiants.filter((etudiant) => {
     const correspondTexte =
       etudiant.nom.toLowerCase().includes(texte) ||
@@ -779,7 +919,11 @@ function actualiserStatistiques() {
     taux.toFixed(1) + " %";
 
   document.getElementById("meilleurEtudiant").textContent =
+<<<<<<< HEAD
     meilleur ? meilleur.prenom + " " + meilleur.nom : "aucun étudiant";
+=======
+    meilleur ? meilleur.prenom + " " + meilleur.nom : "-";
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
   document.getElementById("meilleureNote").textContent =
     meilleur ? Number(meilleur.note).toFixed(2) + " / 20" : "";
@@ -791,6 +935,7 @@ function actualiserStatistiques() {
   document.getElementById("donutPct").textContent =
     taux.toFixed(0) + " %";
 
+<<<<<<< HEAD
   const graphDonut = document.getElementById("graphDonut");
   if (total === 0) {
     graphDonut.classList.add("donut-vide");
@@ -799,6 +944,9 @@ function actualiserStatistiques() {
     graphDonut.classList.remove("donut-vide");
     graphDonut.style.setProperty("--pct", taux);
   }
+=======
+  document.getElementById("graphDonut").style.setProperty("--pct", taux);
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
 
   actualiserGraphiqueClasses();
   actualiserGraphiqueNotes();
@@ -926,11 +1074,17 @@ function exporterCSV() {
 
   lien.href = url;
   lien.download = "etudiants.csv";
+<<<<<<< HEAD
   document.body.appendChild(lien);
   lien.click();
   lien.remove();
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+=======
+  lien.click();
+
+  URL.revokeObjectURL(url);
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   afficherToast("Export CSV terminé.");
 }
 
@@ -975,9 +1129,13 @@ function lireCSV(texte) {
   let valeur = "";
   let entreGuillemets = false;
 
+<<<<<<< HEAD
   const premiereLigne = texte.split(/\r?\n/)[0] || "";
   const separateur = premiereLigne.includes(";") ? ";" : ",";
 
+=======
+  
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   for (let i = 0; i < texte.length; i++) {
     const caractere = texte[i];
     const suivant = texte[i + 1];
@@ -987,7 +1145,11 @@ function lireCSV(texte) {
       i++;
     } else if (caractere === '"') {
       entreGuillemets = !entreGuillemets;
+<<<<<<< HEAD
     } else if (caractere === separateur && !entreGuillemets) {
+=======
+    } else if ((caractere === ";" || caractere === ",") && !entreGuillemets) {
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
       ligne.push(valeur);
       valeur = "";
     } else if ((caractere === "\n" || caractere === "\r") && !entreGuillemets) {
@@ -1147,7 +1309,11 @@ btnTheme.addEventListener("click", function () {
   try {
     localStorage.setItem("themeUNCHK", mode);
   } catch (erreur) {
+<<<<<<< HEAD
 
+=======
+   
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
   }
 
   actualiserIconeTheme();
@@ -1159,4 +1325,10 @@ formulaire.addEventListener("reset", function () {
   effacerMessages();
 });
 
+<<<<<<< HEAD
 actualiserApplication();
+=======
+actualiserApplication();
+
+
+>>>>>>> dad45babf1ca1542b2a77a078d877a2b6bb1d140
