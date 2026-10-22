@@ -91,8 +91,9 @@ function echapper(texte) {
 }
 
 let minuterieToast;
+let minuterieSucces;
 
-function afficherToast(message, erreur = false) {
+function afficherToast(message, erreur = false, duree = 3000) {
     const toast = document.getElementById("toast");
 
     toast.textContent = message;
@@ -103,18 +104,26 @@ function afficherToast(message, erreur = false) {
 
     minuterieToast = setTimeout(() => {
         toast.classList.remove("visible");
-    }, 3000);
+    }, duree);
 }
 
 
 function afficherErreur(message) {
+    clearTimeout(minuterieSucces);
     messageErreur.textContent = message;
     messageSucces.textContent = "";
 }
 
-function afficherSucces(message) {
+function afficherSucces(message, duree = 5000) {
+    clearTimeout(minuterieSucces);
     messageSucces.textContent = message;
     messageErreur.textContent = "";
+
+    if (duree > 0) {
+        minuterieSucces = setTimeout(() => {
+            messageSucces.textContent = "";
+        }, duree);
+    }
 }
 
 function definirErreurChamp(champ, message = "") {
@@ -137,6 +146,7 @@ function definirErreurChamp(champ, message = "") {
 }
 
 function effacerMessages() {
+    clearTimeout(minuterieSucces);
     messageErreur.textContent = "";
     messageSucces.textContent = "";
     erreurEdition.textContent = "";
@@ -290,7 +300,7 @@ formulaire.addEventListener("submit", function (evenement) {
     pageActuelle = 1;
 
     afficherSucces("Étudiant ajouté avec succès !");
-    afficherToast("Étudiant ajouté avec succès.");
+    afficherToast("Étudiant ajouté avec succès.", false, 5000);
 
     actualiserApplication();
 });
@@ -300,6 +310,10 @@ champsFormulaire.forEach((champ) => {
         definirErreurChamp(this, "");
         if (messageErreur.textContent) {
             messageErreur.textContent = "";
+        }
+        if (messageSucces.textContent) {
+            clearTimeout(minuterieSucces);
+            messageSucces.textContent = "";
         }
     });
 });

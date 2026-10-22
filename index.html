@@ -5,6 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestion des étudiants</title>
+    <script>
+        // accueil.html est le point d'entrée officiel de l'application
+        const parametresUrl = new URLSearchParams(window.location.search);
+        if (!sessionStorage.getItem("accesFormulaireUNCHK") && !parametresUrl.has("acces")) {
+            window.location.replace("acc.html");
+        } else {
+            sessionStorage.setItem("accesFormulaireUNCHK", "true");
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
@@ -13,10 +22,16 @@
 
 <body>
     <header>
-        <button type="button" id="btnTheme" class="btn-theme" aria-label="Basculer le mode sombre"
-            title="Mode sombre / clair">
-            <i class="fa-solid fa-moon"></i>
-        </button>
+        <div class="actions-header-groupe">
+            <a href="acc.html" class="btn-lien-accueil" title="Aller à la page d'accueil"
+                onclick="sessionStorage.removeItem('accesFormulaireUNCHK');">
+                <i class="fa-solid fa-house"></i> <span>Accueil</span>
+            </a>
+            <button type="button" id="btnTheme" class="btn-theme" aria-label="Basculer le mode sombre"
+                title="Mode sombre / clair">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
         <div class="container">
             <p class="le">ESPACE ADMINISTRATION</p>
             <h1>

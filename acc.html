@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accueil - Gestion des Étudiants</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="page-accueil-layout">
+
+    <button type="button" id="btnThemeAccueil" class="btn-theme-flottant" aria-label="Basculer le mode sombre"
+        title="Mode sombre / clair">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <div class="ecran-accueil-centre">
+        <!-- Layout animé : éléments en défilement infini de droite vers la gauche -->
+        <div class="layout-defilement-cadre">
+            <div class="halo-ambiant"></div>
+
+            <!-- Ligne 1 : Défilement continu de droite vers la gauche -->
+            <div class="ruban-defilement">
+                <div class="piste-defilement piste-ligne-1">
+                    <!-- Série 1 -->
+                    <div class="carte-element-mobile carte-violet">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>UNCHK</span>
+                    </div>
+                    <div class="carte-element-mobile carte-rose">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>Formulaire</span>
+                    </div>
+                    <div class="carte-element-mobile carte-bleu">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Statistiques</span>
+                    </div>
+                    <div class="carte-element-mobile carte-vert">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Résultats</span>
+                    </div>
+                    <div class="carte-element-mobile carte-jaune">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Classement</span>
+                    </div>
+                    <div class="carte-element-mobile carte-cyan">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+
+                    <!-- Série 1 Dupliquée pour boucle infinie sans coupure -->
+                    <div class="carte-element-mobile carte-violet">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>UNCHK</span>
+                    </div>
+                    <div class="carte-element-mobile carte-rose">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>Formulaire</span>
+                    </div>
+                    <div class="carte-element-mobile carte-bleu">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Statistiques</span>
+                    </div>
+                    <div class="carte-element-mobile carte-vert">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Résultats</span>
+                    </div>
+                    <div class="carte-element-mobile carte-jaune">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Classement</span>
+                    </div>
+                    <div class="carte-element-mobile carte-cyan">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ligne 2 : Défilement continu de droite vers la gauche (vitesse décalée) -->
+            <div class="ruban-defilement">
+                <div class="piste-defilement piste-ligne-2">
+                    <!-- Série 2 -->
+                    <div class="carte-element-mobile carte-vert">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Étudiants</span>
+                    </div>
+                    <div class="carte-element-mobile carte-jaune">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Calcul Instantané</span>
+                    </div>
+                    <div class="carte-element-mobile carte-violet">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Moyenne</span>
+                    </div>
+                    <div class="carte-element-mobile carte-rose">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Recherche</span>
+                    </div>
+                    <div class="carte-element-mobile carte-cyan">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Promotion 2026</span>
+                    </div>
+                    <div class="carte-element-mobile carte-bleu">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Filtres</span>
+                    </div>
+
+                    <!-- Série 2 Dupliquée pour boucle infinie sans coupure -->
+                    <div class="carte-element-mobile carte-vert">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Étudiants</span>
+                    </div>
+                    <div class="carte-element-mobile carte-jaune">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Calcul Instantané</span>
+                    </div>
+                    <div class="carte-element-mobile carte-violet">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>Moyenne</span>
+                    </div>
+                    <div class="carte-element-mobile carte-rose">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Recherche</span>
+                    </div>
+                    <div class="carte-element-mobile carte-cyan">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Promotion 2026</span>
+                    </div>
+                    <div class="carte-element-mobile carte-bleu">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Filtres</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- En bas du layout : bouton entrer dans ce formulaire -->
+        <div class="zone-bouton-centre">
+            <a href="index.html?acces=1" class="btn-entrer-formulaire" id="btnEntrerFormulaire">
+                <span>Ouvrir l'application</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const CLE_THEME = "themeUNCHK";
+            const btnTheme = document.getElementById("btnThemeAccueil");
+            const iconeTheme = btnTheme.querySelector("i");
+            const btnEntrer = document.getElementById("btnEntrerFormulaire");
+
+            if (btnEntrer) {
+                btnEntrer.addEventListener("click", function () {
+                    sessionStorage.setItem("accesFormulaireUNCHK", "true");
+                });
+            }
+
+            function appliquerTheme(mode) {
+                if (mode === "sombre") {
+                    document.body.classList.add("sombre");
+                    iconeTheme.className = "fa-solid fa-sun";
+                    btnTheme.title = "Mode clair";
+                } else {
+                    document.body.classList.remove("sombre");
+                    iconeTheme.className = "fa-solid fa-moon";
+                    btnTheme.title = "Mode sombre";
+                }
+            }
+
+            try {
+                const modeSauvegarde = localStorage.getItem(CLE_THEME);
+                appliquerTheme(modeSauvegarde === "sombre" ? "sombre" : "clair");
+            } catch (e) {
+                appliquerTheme("clair");
+            }
+
+            btnTheme.addEventListener("click", function () {
+                const modeActuel = document.body.classList.contains("sombre") ? "sombre" : "clair";
+                const nouveauMode = modeActuel === "sombre" ? "clair" : "sombre";
+                try {
+                    localStorage.setItem(CLE_THEME, nouveauMode);
+                } catch (e) {}
+                appliquerTheme(nouveauMode);
+            });
+        })();
+    </script>
+</body>
+
+</html>
